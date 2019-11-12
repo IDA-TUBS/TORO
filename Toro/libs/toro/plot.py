@@ -1,5 +1,5 @@
 """ Toro
-| Copyright (C) 2019 TU Braunschweig, Institute for Computer and Network Engineering
+| Copyright (C) 2019 Innovationsgesellschaft Technische Universitaet Braunschweig mbH (iTUBS)
 | All rights reserved.
 | See LICENSE file for copyright and license details.
 

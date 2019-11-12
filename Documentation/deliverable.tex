@@ -1,0 +1,249 @@
+%%This is a very basic article template.
+%%There is just one section and two subsections.
+\documentclass[11pt, a4paper, openany]{article}
+
+\usepackage[top=1.25in, bottom=1.25in, left=1.25in, right=1.25in]{geometry}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+%\setlength\textwidth{16cm}
+%\setlength\oddsidemargin{1cm} 
+%%\setlength\oddsidemargin{1cm} 
+%%\setlength\evensidemargin{1cm}
+
+\usepackage{IDA}
+
+\usepackage[pdftex]{graphicx}
+
+\graphicspath{{./img/pdf/}{./img/png/}}
+
+\usepackage{pdfpages}
+\pdfoutput=1
+\pdfcompresslevel=9 
+\DeclareGraphicsExtensions{.pdf,.jpg,.png}
+
+% settings
+\clubpenalty = 10000
+\widowpenalty = 10000
+\displaywidowpenalty = 10000
+\sloppy % allow wider spaces to avoid lines going too wide
+
+\usepackage[most]{tcolorbox}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage[]{placeins}
+\usepackage{textcomp}
+\usepackage{amsthm}
+\newtheorem{assumption}{Assumption}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{xcolor}
+\usepackage[bottom]{footmisc}
+\usepackage[nolist]{acronym}
+% lastly load colour hyperref
+\usepackage[pdftex,plainpages=true,pdfpagelabels,colorlinks,pdfusetitle]{hyperref}
+% Hyperref Einstellungen
+\hypersetup{
+ pdfkeywords={...},
+% backref=true,
+% pagebackref=true,
+% hyperfigures,
+% hyperindex,
+ colorlinks,
+ pdfpagemode=UseOutlines,
+ bookmarksopen,
+ bookmarksopenlevel=1,
+ bookmarksnumbered,
+% bookmarksdepth=5, %this only works in a current version of hyperref
+ pageanchor,
+ plainpages=true,
+ urlcolor=black,
+ menucolor=black,
+ citecolor=black,
+ anchorcolor=black,
+ filecolor=black,
+ linkcolor=black,
+ colorlinks=true
+}
+\usepackage{booktabs}
+%\usepackage{tabularx} 
+\usepackage{multirow}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\usepackage{rotating}
+\usepackage{chngpage} %allows temporary cheating with page margins
+\usepackage{layouts}
+%\usepackage[format=plain, justification=centering,singlelinecheck=false]{caption}
+\usepackage[justification=centering,singlelinecheck=false]{caption}
+% \usepackage{algorithm}
+% \usepackage[noend]{algorithmic}
+%\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\usepackage{listings}
+\usepackage{etoolbox}
+%\usepackage{subcaption}
+\usepackage{tikzsymbols}
+\usepackage{tcolorbox}
+%\usepackage[justification=centering]{caption}
+\usepackage{wasysym}
+\usepackage{hyperref}
+\usepackage[normalem]{ulem}
+\usepackage{here}
+\usepackage{tikz}
+\usetikzlibrary{svg.path}
+
+\usepackage[justification=raggedright]{caption}
+\usepackage{xargs}
+\usepackage{pdfpages}
+\input{notation.tex}
+
+% Some useful commands and a notation package
+% Thy to Moritz :-)
+\newcommand{\chapref}[1]{chapter~\ref{#1}}
+\newcommand{\secref}[1]{Section~\ref{#1}}
+\newcommand{\figref}[1]{figure~\ref{#1}}
+\newcommand{\FigRef}[1]{Figure~\ref{#1}}
+\newcommand{\equaref}[1]{(\ref{#1})}
+\newcommand{\algref}[1]{algorithm~\ref{#1}}
+\newcommand{\tabref}[1]{table~\ref{#1}}
+\newcommand{\defref}[1]{definition~\ref{#1}}
+\newcommand{\theoremref}[1]{theorem~\ref{#1}}
+\newcommand{\lemmaref}[1]{lemma~\ref{#1}}
+\newcommand{\corollaryref}[1]{corollary~\ref{#1}}
+\newcommand{\appref}[1]{Appendix~\ref{#1}}
+
+\newcommand{\Chapref}[1]{Chapter~\ref{#1}}
+\newcommand{\Secref}[1]{Section~\ref{#1}}
+\newcommand{\Figref}[1]{Figure~\ref{#1}}
+\newcommand{\Equaref}[1]{(Equation~\ref{#1})}
+\newcommand{\Algref}[1]{Algorithm~\ref{#1}}
+\newcommand{\Tabref}[1]{Table~\ref{#1}}
+\newcommand{\Defref}[1]{Definition~\ref{#1}}
+\newcommand{\Theoremref}[1]{Theorem~\ref{#1}}
+\newcommand{\Lemmaref}[1]{Lemma~\ref{#1}}
+\newcommand{\Corollaryref}[1]{Corollary~\ref{#1}}
+\newcommand{\Appref}[1]{Appendix~\ref{#1}}
+\newcommand{\Lstref}[1]{Lst.~\ref{#1}}
+\newcommand{\Code}[1]{\texttt{#1}}
+\newcommand{\ucos}{$\mu$C/OS-II~}
+\newcommand{\citeme}{\textbf{\textcolor{red}{CITEME}}}
+%\input{notation}
+
+\usepackage{xspace}
+\newcommand{\Tool}{
+\textbf{\textsc{\rmfamily{Toro}}}\xspace}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=C,
+  aboveskip=3mm,
+  belowskip=-1mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\newcommand{\deliverable}{Robuste Wirkketten}
+\newcommand{\shorttitle}{Abschlussbericht AP3}
+
+\setlength\parindent{0pt}
+
+\begin{document} 
+
+\begin{acronym}[ECU]
+\acro{spp}[SPP]{static priority preemptive}
+\acro{spnp}[SPNP]{static priority non-preemptive}
+\acro{wcrt}[WCRT]{maximale Antwortzeit}
+\end{acronym}
+
+
+% Modifiy font sizes, requires \usepackage{etoolbox} in packages.tex
+\newcommand{\EqSize}{\small}			% Equations and Align
+\newcommand{\AlgSize}{\small}			% Algorithm
+\newcommand{\LstSize}{\scriptsize}			% Source code listing
+\preto\align{\par\nobreak\EqSize\noindent}
+\preto\equation{\par\nobreak\EqSize\noindent}
+\preto\algorithmic{\par\nobreak\AlgSize\noindent}
+%\preto\lstlisting{\par\nobreak\noident}
+
+\begin{titlepage}
+\pagestyle{plain}
+\pagenumbering{Alph}
+% \includegraphics[width=5cm]{img/iTUBS}\\[3cm] 
+
+\title{\Tool: \\
+\LARGE{A TOol to evaluate the RObustness}\\ 
+\LARGE{of cause-effect chains}.}
+\author{
+Leonie Köhler, M.Sc.\\%
+Nikolas Brendes, B.Sc. \\
+Prof. Dr.-Ing. Rolf Ernst}
+\date{Version 1.0}
+\maketitle 
+\thispagestyle{empty}
+
+
+\begin{flushright}
+
+\Large\textbf{Abschlussbericht AP3}
+\\[1cm]
+\large
+iTUBS \\ Braunschweig 
+\end{flushright} 
+
+%\vspace{5cm}
+%\begin{abstract}
+%Abstract goes here
+%\end{abstract}
+
+\end{titlepage}
+
+\pagenumbering{roman}
+\pagestyle{plain}
+
+\tableofcontents
+\clearpage
+%\newpage
+%\listoffigures
+%\listoftables
+%\newpage
+\clearpage
+\pagestyle{fancyplain}
+\pagenumbering{arabic}
+
+
+
+%%% CONTENT:
+\input{text/introduction.tex}
+\newpage
+\input{text/functionality.tex}
+\newpage
+\input{text/usability.tex}
+\newpage
+\input{text/internals}
+\newpage
+\appendix
+\section{APPENDIX: The Theory Behind Toro\\ \emph{Conference Article in Preparation for ECRTS'20}}
+\includepdf[pages=-]{text/ecrts2020_v1.pdf}
+
+
+\end{document}

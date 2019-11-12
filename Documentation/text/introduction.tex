@@ -1,0 +1,54 @@
+\section{Deliverables of AP 3}
+\begin{itemize}
+	\item \Tool, TOol to evaluate the RObustness of cause-effect chains
+	\item Documentation
+	\item PowerPoint Presentation
+	\item \emph{Additionally}\\
+	Joint conference paper, submission to ECRTS'20 planned
+\end{itemize}
+
+\newpage
+
+\section{Introduction}
+Control applications in automotive software systems often contain time-critical cause-effect chains.  
+A time-critical cause-effect chain typically includes the reading of sensor data, their processing and finally the control of actuators.  
+Satisfying specified end-to-end deadlines of cause-effect  chains serves to ensure correct system behavior and can also increase driving comfort.
+From an implementation point of view, a cause-effect chain consists of communicating tasks that are distributed among various system components. 
+\smallskip
+
+Designing a software application in such a way that all end-to-end deadlines of cause-effect chains are satisfied, even in the worst case, is already challenging. 
+Since software applications are regularly extended, it is another central concern to guarantee end-to-end deadlines in case of software updates without having to carry out a completely new software design. 
+
+
+The tool \Tool (TOol to evaluate the RObustness of cause-effect chains )
+\begin{itemize}
+	\item processes the model of a given software application with time-critical cause-effect chains,
+	\item calculates the maximum end-to-end latencies of the given cause-effect chains,
+	\item makes statements about the robustness of applications during software updates with regard to compliance with end-to-end deadlines.
+\end{itemize}
+\bigskip
+
+\noindent
+The results can be used
+\begin{itemize}
+	\item to evaluate the robustness of a given software application regarding software updates, 
+	\item to identify critical (less robust) segments of a cause-effect chain,
+	\item to predict whether a given software update will change the timing of cause-effect chains such that end-to-end deadlines are missed,
+	\item to determine where and why a given software update changes the time behavior such that end-to-end deadlines are missed.
+\end{itemize}
+\bigskip
+
+\noindent
+The tool \Tool is based on a novel robustness analysis that was developed in 2018/19 in a collaboration between Daimler and iTUBS.
+The analysis is summarized in a scientific article which forms the appendix of this documentation.
+The submission of the article to ECRTS 2020 is planned.
+
+
+\paragraph{Structure of the Document}
+Section \ref{sec:functionality} explains the terminology and principle of \Tool. 
+Section \ref{sec:usability} explains how to install and run \Tool. It also introduces three different example use cases, which are evaluated with \Tool. 
+Section \ref{sec:internals} describes the software architecture of \Tool.  
+The appendix is a scientific article on the underlying theory of \Tool.
+
+
+

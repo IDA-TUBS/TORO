@@ -1,0 +1,167 @@
+Toro, Analysis TOol to evaluate the RObustness of cause-effect chains 
+Copyright (C) 2019 iTUBS Germany 
+All rights reserved. 
+See LICENSE file for copyright and license details. 
+     _____
+    /__   \___  _ __ ___  
+      / /\/ _ \| '__/ _ \  
+     / / | (_) | | | (_) | 
+     \/   \___/|_|  \___/  
+
+ 
+==================================================================
+DETAILED RESULTS FOR CHAIN "BETchain_3" 
+==================================================================
+1) DEFINITION OF THE ANALYZED CAUSE-EFFECT CHAIN 
+------------------------------------------------------------------
+ CHAIN: BETchain_3
+   sequence:  -> BETtask_2 -> BETtask_4==================================================================
+2) SUMMARY: MAXIMUM END-TO-END LATENCY AND ROBUSTNESS MARGINS 
+------------------------------------------------------------------
+max end-to-end latency: 20
+robustness margin of BETtask_2 -> BETtask_4: 0
+robustness margin of BETtask_4 -> End Of Chain: inf
+
+==================================================================
+3) DETAILS OF THE LATENCY ANALYSIS: INDIVIDUAL MAX PATH LATENCIES 
+------------------------------------------------------------------
+Maximum end-to-end latency for each path 
+ -> BETtask_2,1 -> BETtask_4,1  |  max: 5
+ -> BETtask_2,1 -> BETtask_4,2  |  max: 10
+ -> BETtask_2,1 -> BETtask_4,3  |  max: 15
+ -> BETtask_2,1 -> BETtask_4,4  |  max: 20
+==================================================================
+4) DETAILS OF THE ROBUSTNESS ANALYSIS: ROB. MARGINS FOR JOB PAIRS 
+------------------------------------------------------------------
+ -> BETtask_2,1 -> BETtask_4,5  |  RM: 0
+
+ 
+ 
+
+==================================================================
+DETAILED RESULTS FOR CHAIN "BETchain_2" 
+==================================================================
+1) DEFINITION OF THE ANALYZED CAUSE-EFFECT CHAIN 
+------------------------------------------------------------------
+ CHAIN: BETchain_2
+   sequence:  -> BETtask_2 -> BETtask_1 -> BETtask_4==================================================================
+2) SUMMARY: MAXIMUM END-TO-END LATENCY AND ROBUSTNESS MARGINS 
+------------------------------------------------------------------
+max end-to-end latency: 25
+robustness margin of BETtask_2 -> BETtask_1: 0
+robustness margin of BETtask_1 -> BETtask_4: 3
+robustness margin of BETtask_4 -> End Of Chain: inf
+
+==================================================================
+3) DETAILS OF THE LATENCY ANALYSIS: INDIVIDUAL MAX PATH LATENCIES 
+------------------------------------------------------------------
+Maximum end-to-end latency for each path 
+ -> BETtask_2,1 -> BETtask_1,1 -> BETtask_4,1  |  max: 5
+ -> BETtask_2,1 -> BETtask_1,1 -> BETtask_4,2  |  max: 10
+ -> BETtask_2,1 -> BETtask_1,2 -> BETtask_4,2  |  max: 10
+ -> BETtask_2,1 -> BETtask_1,2 -> BETtask_4,3  |  max: 15
+ -> BETtask_2,1 -> BETtask_1,3 -> BETtask_4,3  |  max: 15
+ -> BETtask_2,1 -> BETtask_1,3 -> BETtask_4,4  |  max: 20
+ -> BETtask_2,1 -> BETtask_1,4 -> BETtask_4,4  |  max: 20
+ -> BETtask_2,1 -> BETtask_1,4 -> BETtask_4,5  |  max: 25
+==================================================================
+4) DETAILS OF THE ROBUSTNESS ANALYSIS: ROB. MARGINS FOR JOB PAIRS 
+------------------------------------------------------------------
+ -> BETtask_2,1 -> BETtask_1,5  |  RM: 0
+ -> BETtask_1,1 -> BETtask_4,3  |  RM: 3
+ -> BETtask_1,2 -> BETtask_4,4  |  RM: 3
+ -> BETtask_1,3 -> BETtask_4,5  |  RM: 3
+ -> BETtask_1,4 -> BETtask_4,6  |  RM: 3
+ -> BETtask_1,5 -> BETtask_4,6  |  RM: 3
+
+ 
+ 
+
+==================================================================
+DETAILED RESULTS FOR CHAIN "BETchain_1" 
+==================================================================
+1) DEFINITION OF THE ANALYZED CAUSE-EFFECT CHAIN 
+------------------------------------------------------------------
+ CHAIN: BETchain_1
+   sequence:  -> BETtask_1 -> BETtask_3 -> BETtask_4 -> BETtask_5==================================================================
+2) SUMMARY: MAXIMUM END-TO-END LATENCY AND ROBUSTNESS MARGINS 
+------------------------------------------------------------------
+max end-to-end latency: 47
+robustness margin of BETtask_1 -> BETtask_3: 1
+robustness margin of BETtask_3 -> BETtask_4: 0
+robustness margin of BETtask_4 -> BETtask_5: 3
+robustness margin of BETtask_5 -> End Of Chain: inf
+
+==================================================================
+3) DETAILS OF THE LATENCY ANALYSIS: INDIVIDUAL MAX PATH LATENCIES 
+------------------------------------------------------------------
+Maximum end-to-end latency for each path 
+ -> BETtask_1,1 -> BETtask_3,1 -> BETtask_4,2 -> BETtask_5,1  |  max: 17
+ -> BETtask_1,1 -> BETtask_3,1 -> BETtask_4,2 -> BETtask_5,2  |  max: 27
+ -> BETtask_1,1 -> BETtask_3,1 -> BETtask_4,3 -> BETtask_5,2  |  max: 27
+ -> BETtask_1,1 -> BETtask_3,1 -> BETtask_4,4 -> BETtask_5,2  |  max: 27
+ -> BETtask_1,1 -> BETtask_3,1 -> BETtask_4,4 -> BETtask_5,3  |  max: 37
+ -> BETtask_1,1 -> BETtask_3,1 -> BETtask_4,5 -> BETtask_5,3  |  max: 37
+ -> BETtask_1,1 -> BETtask_3,1 -> BETtask_4,6 -> BETtask_5,3  |  max: 37
+ -> BETtask_1,1 -> BETtask_3,1 -> BETtask_4,6 -> BETtask_5,4  |  max: 47
+ -> BETtask_1,2 -> BETtask_3,1 -> BETtask_4,2 -> BETtask_5,1  |  max: 12
+ -> BETtask_1,2 -> BETtask_3,1 -> BETtask_4,2 -> BETtask_5,2  |  max: 22
+ -> BETtask_1,2 -> BETtask_3,1 -> BETtask_4,3 -> BETtask_5,2  |  max: 22
+ -> BETtask_1,2 -> BETtask_3,1 -> BETtask_4,4 -> BETtask_5,2  |  max: 22
+ -> BETtask_1,2 -> BETtask_3,1 -> BETtask_4,4 -> BETtask_5,3  |  max: 32
+ -> BETtask_1,2 -> BETtask_3,1 -> BETtask_4,5 -> BETtask_5,3  |  max: 32
+ -> BETtask_1,2 -> BETtask_3,1 -> BETtask_4,6 -> BETtask_5,3  |  max: 32
+ -> BETtask_1,2 -> BETtask_3,1 -> BETtask_4,6 -> BETtask_5,4  |  max: 42
+ -> BETtask_1,3 -> BETtask_3,1 -> BETtask_4,2 -> BETtask_5,1  |  max: 7
+ -> BETtask_1,3 -> BETtask_3,1 -> BETtask_4,2 -> BETtask_5,2  |  max: 17
+ -> BETtask_1,3 -> BETtask_3,1 -> BETtask_4,3 -> BETtask_5,2  |  max: 17
+ -> BETtask_1,3 -> BETtask_3,1 -> BETtask_4,4 -> BETtask_5,2  |  max: 17
+ -> BETtask_1,3 -> BETtask_3,1 -> BETtask_4,4 -> BETtask_5,3  |  max: 27
+ -> BETtask_1,3 -> BETtask_3,1 -> BETtask_4,5 -> BETtask_5,3  |  max: 27
+ -> BETtask_1,3 -> BETtask_3,1 -> BETtask_4,6 -> BETtask_5,3  |  max: 27
+ -> BETtask_1,3 -> BETtask_3,1 -> BETtask_4,6 -> BETtask_5,4  |  max: 37
+ -> BETtask_1,4 -> BETtask_3,2 -> BETtask_4,5 -> BETtask_5,3  |  max: 22
+ -> BETtask_1,4 -> BETtask_3,2 -> BETtask_4,6 -> BETtask_5,3  |  max: 22
+ -> BETtask_1,4 -> BETtask_3,2 -> BETtask_4,6 -> BETtask_5,4  |  max: 32
+ -> BETtask_1,4 -> BETtask_3,2 -> BETtask_4,7 -> BETtask_5,4  |  max: 32
+ -> BETtask_1,4 -> BETtask_3,2 -> BETtask_4,8 -> BETtask_5,4  |  max: 32
+ -> BETtask_1,4 -> BETtask_3,2 -> BETtask_4,8 -> BETtask_5,5  |  max: 42
+ -> BETtask_1,4 -> BETtask_3,2 -> BETtask_4,9 -> BETtask_5,5  |  max: 42
+ -> BETtask_1,5 -> BETtask_3,2 -> BETtask_4,5 -> BETtask_5,3  |  max: 17
+ -> BETtask_1,5 -> BETtask_3,2 -> BETtask_4,6 -> BETtask_5,3  |  max: 17
+ -> BETtask_1,5 -> BETtask_3,2 -> BETtask_4,6 -> BETtask_5,4  |  max: 27
+ -> BETtask_1,5 -> BETtask_3,2 -> BETtask_4,7 -> BETtask_5,4  |  max: 27
+ -> BETtask_1,5 -> BETtask_3,2 -> BETtask_4,8 -> BETtask_5,4  |  max: 27
+ -> BETtask_1,5 -> BETtask_3,2 -> BETtask_4,8 -> BETtask_5,5  |  max: 37
+ -> BETtask_1,5 -> BETtask_3,2 -> BETtask_4,9 -> BETtask_5,5  |  max: 37
+ -> BETtask_1,6 -> BETtask_3,2 -> BETtask_4,5 -> BETtask_5,3  |  max: 12
+ -> BETtask_1,6 -> BETtask_3,2 -> BETtask_4,6 -> BETtask_5,3  |  max: 12
+ -> BETtask_1,6 -> BETtask_3,2 -> BETtask_4,6 -> BETtask_5,4  |  max: 22
+ -> BETtask_1,6 -> BETtask_3,2 -> BETtask_4,7 -> BETtask_5,4  |  max: 22
+ -> BETtask_1,6 -> BETtask_3,2 -> BETtask_4,8 -> BETtask_5,4  |  max: 22
+ -> BETtask_1,6 -> BETtask_3,2 -> BETtask_4,8 -> BETtask_5,5  |  max: 32
+ -> BETtask_1,6 -> BETtask_3,2 -> BETtask_4,9 -> BETtask_5,5  |  max: 32
+==================================================================
+4) DETAILS OF THE ROBUSTNESS ANALYSIS: ROB. MARGINS FOR JOB PAIRS 
+------------------------------------------------------------------
+ -> BETtask_1,1 -> BETtask_3,2  |  RM: 11
+ -> BETtask_1,2 -> BETtask_3,2  |  RM: 6
+ -> BETtask_1,3 -> BETtask_3,2  |  RM: 1
+ -> BETtask_1,4 -> BETtask_3,2  |  RM: 11
+ -> BETtask_1,5 -> BETtask_3,2  |  RM: 21
+ -> BETtask_1,6 -> BETtask_3,2  |  RM: 31
+ -> BETtask_3,1 -> BETtask_4,7  |  RM: 0
+ -> BETtask_3,2 -> BETtask_4,10  |  RM: 0
+ -> BETtask_4,1 -> BETtask_5,2  |  RM: 3
+ -> BETtask_4,2 -> BETtask_5,3  |  RM: 8
+ -> BETtask_4,3 -> BETtask_5,3  |  RM: 3
+ -> BETtask_4,4 -> BETtask_5,4  |  RM: 8
+ -> BETtask_4,5 -> BETtask_5,4  |  RM: 3
+ -> BETtask_4,6 -> BETtask_5,5  |  RM: 8
+ -> BETtask_4,7 -> BETtask_5,5  |  RM: 3
+ -> BETtask_4,8 -> BETtask_5,6  |  RM: 8
+ -> BETtask_4,9 -> BETtask_5,6  |  RM: 3
+ -> BETtask_4,10 -> BETtask_5,6  |  RM: 8
+
+ 
+ 

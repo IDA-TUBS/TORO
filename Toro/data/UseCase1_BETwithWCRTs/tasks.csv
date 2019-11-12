@@ -1,0 +1,6 @@
+task_name;period;offset;priority;wcet;resource;bcrt;wcrt;let
+BETtask_1;5;0;n/a;n/a;unknown;1;2;n/a
+BETtask_2;10;2;n/a;n/a;unknown;2;8;n/a
+BETtask_3;15;3;n/a;n/a;unknown;2;12;n/a
+BETtask_4;5;0;n/a;n/a;unknown;0;2;n/a
+BETtask_5;10;0;n/a;n/a;unknown;2;9;n/a

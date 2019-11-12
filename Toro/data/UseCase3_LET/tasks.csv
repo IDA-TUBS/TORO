@@ -1,0 +1,5 @@
+task_name;period;offset;priority;wcet;resource;bcrt;wcrt;let
+LETtask_1;5;0;n/a;n/a;unknown;n/a;n/a;5
+LETtask_2;10;0;n/a;n/a;unknown;n/a;n/a;8
+LETtask_3;15;3;n/a;n/a;unknown;n/a;n/a;12
+LETtask_4;20;2;n/a;n/a;unknown;n/a;n/a;18

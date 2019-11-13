@@ -36,7 +36,7 @@ class calc_latencies_robustness(object):
         self.job_matrix = list()
         self.semantics = semantics 
         #1) calculate hyper period of chain tasks
-        self.hyperperiod = self.__calc_hyperperiod(chain)       
+        self.hyperperiod = self.__calc_hyperperiod(chain)              
         #2) build a matrix of instantiated jobs
         l = 0
         for k in chain.tasks:

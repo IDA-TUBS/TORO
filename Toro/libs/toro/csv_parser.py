@@ -62,7 +62,6 @@ class parse_csv(object):
         if file != None:
             csv_tasks = self.__read_csv_tasks(file)
             self.tasks = self.__get_tasks(csv_tasks)
-            print self.tasks
 
         # parse chains.csv
         file = None

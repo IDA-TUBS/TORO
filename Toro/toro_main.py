@@ -270,7 +270,7 @@ def perform_analysis(_dir):
         print("ERROR: unexpected internal error.")
         
     chain_results_dict = dict()
-    for chain in read_data.chains:
+    for chain in read_data.chains:    
         print("Analyzing cause-effect chain: " + chain.name)
         try:
             chain_results = toro_analysis.calc_latencies_robustness(chain, semantics, task_results)
@@ -279,10 +279,10 @@ def perform_analysis(_dir):
             return
         print "---------------------------------------------------------------------------------------"         
         chain_results_dict[chain.name] = chain_results
-        print "\n"
-        print "======================================================================================="
-        print "Generating diagrams."    
-        print "---------------------------------------------------------------------------------------"          
+    print "\n \n"
+    print "======================================================================================="
+    print "Generating diagrams."    
+    print "---------------------------------------------------------------------------------------"          
     for chain in read_data.chains:        
         print "Generating interval graph for chain \"" + chain.name + "_intervals.svg\"."
         draw_chain.draw_read_data_intervals(chain_results, robustness_margin="first", dependency_polygon=True, max_data_age="last").save_file(os.path.join(_dir, chain.name + "_intervals.svg"))
@@ -317,7 +317,7 @@ def perform_analysis(_dir):
     chain_log += "------------------------------------------------------------------\n"           
     for task in chain.tasks:
         chain_log += ("Robustness margin of task \"" + task.name + "\"" + \
-                "for the set of cause-effect chains " + 
+                " for the set of cause-effect chains " + 
                 chain.name + " is " + \
                 str(chain_results_dict['RMs_system'][task.name]) + ".\n")            
         

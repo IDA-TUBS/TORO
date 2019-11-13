@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*- 
 """ Toro
 | Copyright (C) 2019 Innovationsgesellschaft Technische Universitaet Braunschweig mbH (iTUBS)
 | All rights reserved.
@@ -167,7 +169,7 @@ def perform_analysis(_dir):
         if case == 1 or case == 2 or case == 3:
             break                    
         else:        
-            print "Are all cause-effect chains built from LET tasks?"
+            print "Are all cause-effect chains built from LET tasks with implicit deadlines?"
             ans = __get_input("(y/n): ").lower() 
             if ans == "y" or ans == "yes":
                 case = 3
@@ -267,7 +269,7 @@ def perform_analysis(_dir):
     else:
         print("ERROR: unexpected internal error.")
         
-    chain_results = list()
+    chain_results_dict = dict()
     for chain in read_data.chains:
         print("Analyzing cause-effect chain: " + chain.name)
         try:
@@ -276,9 +278,7 @@ def perform_analysis(_dir):
             assert False, ("ERROR: calc_latencies_robustness() failed!")
             return
         print "---------------------------------------------------------------------------------------"         
-        chain_results.chain = chain
-        chain.results = chain_results
-        chain.max_data_age = chain_results.max_data_age
+        chain_results_dict[chain.name] = chain_results
         print "\n"
         print "======================================================================================="
         print "Generating diagrams."    
@@ -290,18 +290,20 @@ def perform_analysis(_dir):
         draw_chain.draw_dependency_graph(chain_results).save_file(os.path.join(_dir, chain.name + "_tree.svg"))
         print "---------------------------------------------------------------------------------------"          
     print "Generating summarizing diagram \"results.svg\"."
-    #draw_chain.draw_results(chains = read_data.chains, tasks = read_data.tasks).save_file(os.path.join(_dir,"Results.svg")
+    #draw_chain.draw_results(chains = read_data.chains, tasks = read_data.tasks).save_file(os.path.join(_dir,"Results.svg"))
     print "\n"
     print "======================================================================================="
     print "Results."    
     print "---------------------------------------------------------------------------------------"
     print "MAXIMUM END-TO-END LATENCIES:"
     for chain in read_data.chains:
-        print("\t Max. end-to-end latency of chain \"" + chain.name + "\" is " + str(chain.max_data_age) + ".")
+        print("\t Max. end-to-end latency of chain \"" + chain.name + "\" is " + str(chain_results_dict[chain.name].max_data_age) + ".")
     print "---------------------------------------------------------------------------------------"
-    print "ROBUSTNESS MARGINS:"      
+    print "ROBUSTNESS MARGINS W.R.T. THE SET OF CAUSE-EFFECT CHAINS:" 
+    toro_analysis.compute_rm_min_all_chains(chain_results_dict, read_data.tasks, read_data.chains)
     for task in read_data.tasks:
-        print("\t Robustness margin of task \"" + task.name + "\" is " + str(task.robustness_margin) + ".")      
+        print("\t Robustness margin of task \"" + task.name + "\" is " + \
+              str(chain_results_dict['RMs_system'][task.name]) + ".")      
     print "---------------------------------------------------------------------------------------"        
     print("Detailed information can be found in the RESULTS_LOG.txt file.")    
     
@@ -309,7 +311,16 @@ def perform_analysis(_dir):
     log = ""
     chain_log = ""
     for chain in read_data.chains:
-        chain_log += log_chain_results(chain.results, chain, os.path.join(_dir, chain.name + "_results.txt"))
+        chain_log += log_chain_results(chain_results_dict[chain.name], chain, os.path.join(_dir, chain.name + "_results.txt"), chain_results_dict) 
+    chain_log += "==================================================================\n"
+    chain_log += "ROBUSTNESS MARGINS W.R.T. TO THE SET OF CAUSE-EFFECT CHAINS \n"    
+    chain_log += "------------------------------------------------------------------\n"           
+    for task in chain.tasks:
+        chain_log += ("Robustness margin of task \"" + task.name + "\"" + \
+                "for the set of cause-effect chains " + 
+                chain.name + " is " + \
+                str(chain_results_dict['RMs_system'][task.name]) + ".\n")            
+        
     with open(_dir + "/RESULTS_LOG.txt", "w") as log_file:
         log_file.write(__banner() + log + chain_log[1:])    
     print "\n"
@@ -319,7 +330,7 @@ def perform_analysis(_dir):
     
 
 
-def log_chain_results(results, chain, _dir):
+def log_chain_results(results, chain, _dir, chain_results_dict):
     """
     This function produces the major content of the file "RESULTS_LOG.txt".
     """
@@ -332,23 +343,11 @@ def log_chain_results(results, chain, _dir):
     log += " CHAIN: " + chain.name + "\n   sequence: "
     for task in chain.tasks:
         log += " -> " + task.name
+    log += "\n"
     log += "==================================================================\n"
-    log += "2) SUMMARY: MAXIMUM END-TO-END LATENCY AND ROBUSTNESS MARGINS \n"    
+    log += "2) SUMMARY: MAXIMUM END-TO-END LATENCY \n"    
     log += "------------------------------------------------------------------\n"    
     log += "max end-to-end latency: " + str(results.max_data_age) + "\n"
-    for task in results.job_matrix:
-        min_rm = float("inf")
-        _task_name = task[0].parent_task.name
-        _task_next_name = "End Of Chain"
-        for t in range(len(chain.tasks) - 1):
-            if chain.tasks[t].name == _task_name:
-                _task_next_name = chain.tasks[t +1].name
-        for job in task:
-            if job.robustness_margin != None:
-                if job.robustness_margin < min_rm:
-                    min_rm = job.robustness_margin 
-        log += "robustness margin of " + _task_name + " -> " + _task_next_name + ": " + str(min_rm) + "\n"
-    log += "\n"
     log += "==================================================================\n"
     log += "3) DETAILS OF THE LATENCY ANALYSIS: INDIVIDUAL MAX PATH LATENCIES \n"    
     log += "------------------------------------------------------------------\n"  
@@ -362,21 +361,29 @@ def log_chain_results(results, chain, _dir):
         if (results.semantics == "BET_with_known_WCRTs"):
             data_age = k[-1].Rmax + k[-1].wcrt - k[0].Rmin
         log += s + "  |  max: " + str(data_age) + "\n"
+        
     log += "==================================================================\n"
-    log += "4) DETAILS OF THE ROBUSTNESS ANALYSIS: ROB. MARGINS FOR JOB PAIRS \n"    
+    log += "4) SUMMARY: ROBUSTNESS MARGINS W.R.T. THE ISOLATED CAUSE-EFFECT CHAIN \n"    
+    log += "------------------------------------------------------------------\n"           
+    for task in chain.tasks:
+        log += ("Robustness margin of task \"" + task.name + "\"" + \
+                " for the isolated chain " + chain.name + " is " + \
+                  str(chain_results_dict[chain.name].task_robustness_margins_dict[task.name]) + ".\n")       
+    log += "==================================================================\n"
+    log += "5) DETAILS OF THE ROBUSTNESS ANALYSIS: ROB. MARGINS FOR JOB PAIRS \n"    
     log += "------------------------------------------------------------------\n"  
     for task in results.job_matrix:
         for job in task:
             if job.robustness_margin != None:
                 log += " -> " + job.name + " -> " + job.rm_job.name + "  |  RM: " + str(job.robustness_margin) + "\n"
+    log += "The robustness margin for the tail task results from the constraint \n"
+    log += "imposed by the task deadline and the end-to-end deadline of the chain. \n"
     log += "\n \n \n"
     # write to file
     with open(_dir, "w") as log_file:
         log_file.write(__banner() + log)
     
     return log
-
-
 
 
 

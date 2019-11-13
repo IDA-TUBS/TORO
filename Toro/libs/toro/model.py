@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*- 
 """ Toro
 | Copyright (C) 2019 Innovationsgesellschaft Technische Universitaet Braunschweig mbH (iTUBS)
 | All rights reserved.
@@ -33,6 +35,7 @@ class extTask(model.Task):
     def instantiate_job(self, job_number, semantics, wcrt, bcrt):
         """This function instantiates a job with ID job_number."""
         job = Job(name=self.name, 
+                  task_name = self.name,
                   period=self.in_event_model.P, 
                   offset=self.release_offset,
                   wcet=self.wcet, 
@@ -46,8 +49,9 @@ class extTask(model.Task):
 
 class Job(object):
     """ Parameterized job model."""
-    def __init__(self, name, period, offset=None, wcet=None, let=None, bcrt=None,
+    def __init__(self, name, task_name, period, offset=None, wcet=None, let=None, bcrt=None,
                  job_number=None, knowledge_base=None, wcrt=None):
+        self.task_name = task_name
         self.period = period
         self.offset = offset
         self.job_number = job_number

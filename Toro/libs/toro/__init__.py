@@ -1,5 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*- 
+
 """ Toro
-| Copyright (C) 2019 Innovationsgesellschaft Technische Universität Braunschweig mbH (iTUBS)
+| Copyright (C) 2019 Innovationsgesellschaft Technische Universitaet Braunschweig mbH (iTUBS)
 | All rights reserved.
 | See LICENSE file for copyright and license details.
 

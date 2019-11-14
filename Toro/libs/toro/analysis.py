@@ -149,7 +149,7 @@ class calc_latencies_robustness(object):
                     s += " -> " + i.name  
                 if (semantics == "LET"):
                     # release of header job to earliest data of tail job
-                    data_age = k[-1].Dmin - k[0].Rmin
+                    data_age = k[-1].Rmax + k[-1].let - k[0].Rmin
                 if (semantics == "BET_with_known_WCRTs"):
                     data_age = k[-1].Rmax + k[-1].wcrt - k[0].Rmin
                 data_ages.append(data_age)

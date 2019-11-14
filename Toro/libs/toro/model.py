@@ -90,8 +90,10 @@ class Job(object):
         elif(knowledge_base == 'LET'):
             self.Rmin = self.offset + (self.job_number -1 ) * self.period
             self.Rmax = self.Rmin
-            self.Dmin = self.Rmin + self.let
-            self.Dmax =  self.offset + self.job_number * self.period + self.let
+            # changed to less tight bound because of RM computation
+            self.Dmin = self.Rmin 
+            #self.Dmin = self.Rmin + self.let
+            self.Dmax = self.offset + self.job_number * self.period + self.let
 
         else:
             print("No valid knowledge base. Valid: BET_with_known_WCRTs,"

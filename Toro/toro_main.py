@@ -253,6 +253,10 @@ def perform_analysis(_dir):
     elif case == 2:
         try:
             task_results = analysis.analyze_system(system)
+            for r in system.resources:
+                for t in r.tasks:            
+                    t.wcrt = task_results[t].wcrt
+                    t.bcrt = task_results[t].bcrt
         except:        
             assert False, "WCRT-computation with pyCPA failed."
         semantics = "BET_with_known_WCRTs"
@@ -279,18 +283,22 @@ def perform_analysis(_dir):
             return
         print "---------------------------------------------------------------------------------------"         
         chain_results_dict[chain.name] = chain_results
+        chain.results = chain_results #legacy
+
+    toro_analysis.compute_rm_min_all_chains(chain_results_dict, read_data.tasks, read_data.chains) 
+           
     print "\n \n"
     print "======================================================================================="
     print "Generating diagrams."    
     print "---------------------------------------------------------------------------------------"          
     for chain in read_data.chains:        
         print "Generating interval graph for chain \"" + chain.name + "_intervals.svg\"."
-        draw_chain.draw_read_data_intervals(chain_results, robustness_margin="first", dependency_polygon=True, max_data_age="last").save_file(os.path.join(_dir, chain.name + "_intervals.svg"))
+        draw_chain.draw_read_data_intervals(chain_results_dict[chain.name], semantics=semantics, robustness_margin="none", dependency_polygon=True, max_data_age="last").save_file(os.path.join(_dir, chain.name + "_intervals.svg"))
         print "Generating reachability graph for chain \"" + chain.name + "_tree.svg\"."
-        draw_chain.draw_dependency_graph(chain_results).save_file(os.path.join(_dir, chain.name + "_tree.svg"))
+        draw_chain.draw_dependency_graph(chain_results_dict[chain.name]).save_file(os.path.join(_dir, chain.name + "_tree.svg"))
         print "---------------------------------------------------------------------------------------"          
     print "Generating summarizing diagram \"results.svg\"."
-    #draw_chain.draw_results(chains = read_data.chains, tasks = read_data.tasks).save_file(os.path.join(_dir,"Results.svg"))
+    draw_chain.draw_results(chains = read_data.chains, tasks = read_data.tasks, chain_results_dict=chain_results_dict).save_file(os.path.join(_dir,"Results.svg"))
     print "\n"
     print "======================================================================================="
     print "Results."    
@@ -300,10 +308,15 @@ def perform_analysis(_dir):
         print("\t Max. end-to-end latency of chain \"" + chain.name + "\" is " + str(chain_results_dict[chain.name].max_data_age) + ".")
     print "---------------------------------------------------------------------------------------"
     print "ROBUSTNESS MARGINS W.R.T. THE SET OF CAUSE-EFFECT CHAINS:" 
-    toro_analysis.compute_rm_min_all_chains(chain_results_dict, read_data.tasks, read_data.chains)
     for task in read_data.tasks:
-        print("\t Robustness margin of task \"" + task.name + "\" is " + \
-              str(chain_results_dict['RMs_system'][task.name]) + ".")      
+        print("\t Robustness margin of task \"" + task.name + "\" in " + \
+                chain.name + " is " + \
+                str(chain_results_dict['RMs_system'][task.name]) + \
+                " (e2e-deadline satisfied).")
+        print("\t Robustness margin of task \"" + task.name + "\" in " + \
+                chain.name + " is " + \
+                str(chain_results_dict['RMs_corrected_system'][task.name]) + \
+                " (e2e-deadline & task deadlines satisfied).")       
     print "---------------------------------------------------------------------------------------"        
     print("Detailed information can be found in the RESULTS_LOG.txt file.")    
     
@@ -316,11 +329,14 @@ def perform_analysis(_dir):
     chain_log += "ROBUSTNESS MARGINS W.R.T. TO THE SET OF CAUSE-EFFECT CHAINS \n"    
     chain_log += "------------------------------------------------------------------\n"           
     for task in chain.tasks:
-        chain_log += ("Robustness margin of task \"" + task.name + "\"" + \
-                " for the set of cause-effect chains " + 
+        chain_log += ("\t Robustness margin of task \"" + task.name + "\" in " + \
                 chain.name + " is " + \
-                str(chain_results_dict['RMs_system'][task.name]) + ".\n")            
-        
+                str(chain_results_dict['RMs_system'][task.name]) + \
+                " (e2e-deadline satisfied). \n")
+        chain_log += ("\t Robustness margin of task \"" + task.name + "\" in " + \
+                chain.name + " is " + \
+                str(chain_results_dict['RMs_corrected_system'][task.name]) + \
+                " (e2e-deadline & task deadlines satisfied). \n")                     
     with open(_dir + "/RESULTS_LOG.txt", "w") as log_file:
         log_file.write(__banner() + log + chain_log[1:])    
     print "\n"
@@ -366,16 +382,24 @@ def log_chain_results(results, chain, _dir, chain_results_dict):
     log += "4) SUMMARY: ROBUSTNESS MARGINS W.R.T. THE ISOLATED CAUSE-EFFECT CHAIN \n"    
     log += "------------------------------------------------------------------\n"           
     for task in chain.tasks:
-        log += ("Robustness margin of task \"" + task.name + "\"" + \
+        log += ("RM of task \"" + task.name + "\"" + \
                 " for the isolated chain " + chain.name + " is " + \
-                  str(chain_results_dict[chain.name].task_robustness_margins_dict[task.name]) + ".\n")       
+                  str(chain_results_dict[chain.name].task_robustness_margins_dict[task.name]) + \
+                  " (e2e-deadline satisfied).\n")       
+        log += ("RM of task \"" + task.name + "\"" + \
+                " for the isolated chain " + chain.name + " is " + \
+                  str(chain_results_dict[chain.name].task_robustness_margins_corrected_dict[task.name]) + \
+                  " (e2e-deadline & task deadlines satisfied).\n")           
     log += "==================================================================\n"
     log += "5) DETAILS OF THE ROBUSTNESS ANALYSIS: ROB. MARGINS FOR JOB PAIRS \n"    
     log += "------------------------------------------------------------------\n"  
     for task in results.job_matrix:
         for job in task:
             if job.robustness_margin != None:
-                log += " -> " + job.name + " -> " + job.rm_job.name + "  |  RM: " + str(job.robustness_margin) + "\n"
+                log += " -> " + job.name + " -> " + job.rm_job.name + "  |  RM: " + str(job.robustness_margin) + \
+                " (e2e-deadline satisfied).\n"
+                log += " -> " + job.name + " -> " + job.rm_job.name + "  |  RM: " + str(job.robustness_margin_corrected) + \
+                " (e2e-deadline & task deadlines satisfied).\n"                
     log += "The robustness margin for the tail task results from the constraint \n"
     log += "imposed by the task deadline and the end-to-end deadline of the chain. \n"
     log += "\n \n \n"

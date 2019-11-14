@@ -1,6 +1,6 @@
-task_name;period;offset;priority;wcet;resource;bcrt;wcrt;let
-BETtask_1;5;0;n/a;n/a;unknown;1;2;n/a
-BETtask_2;10;2;n/a;n/a;unknown;2;8;n/a
-BETtask_3;15;3;n/a;n/a;unknown;2;12;n/a
-BETtask_4;5;0;n/a;n/a;unknown;0;2;n/a
-BETtask_5;10;0;n/a;n/a;unknown;2;9;n/a
+task_name;period;offset;priority;wcet;resource;bcrt;wcrt
+BET_T1;10;2;n/a;n/a;unknown;0;5;n/a
+BET_T4;20;5;n/a;n/a;unknown;2;15;n/a
+BET_T5;5;0;n/a;n/a;unknown;1;3;n/a
+BET_T7;15;1;n/a;n/a;unknown;3;10;n/a
+BET_T9;30;5;n/a;n/a;unknown;5;20;n/a

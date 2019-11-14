@@ -54,9 +54,11 @@ class calc_latencies_robustness(object):
         "The max. latency violates the specified e2e-deadline!"
         # 4) calculate robustness margins
         self.task_robustness_margins_dict = dict()
+        self.task_robustness_margins_corrected_dict = dict()        
         for task in chain.tasks:
             self.task_robustness_margins_dict[task.name] = None
-        self.__calc_robustness_margins(self.job_matrix, chain)
+            self.task_robustness_margins_corrected_dict[task.name] = None            
+        self.__calc_robustness_margins(self.job_matrix, chain, results)
 
 
     def __calc_hyperperiod(self, chain):
@@ -146,6 +148,7 @@ class calc_latencies_robustness(object):
                 for i in k:
                     s += " -> " + i.name  
                 if (semantics == "LET"):
+                    # release of header job to earliest data of tail job
                     data_age = k[-1].Dmin - k[0].Rmin
                 if (semantics == "BET_with_known_WCRTs"):
                     data_age = k[-1].Rmax + k[-1].wcrt - k[0].Rmin
@@ -154,7 +157,7 @@ class calc_latencies_robustness(object):
             return max(data_ages)
         
 
-    def __calc_robustness_margins(self, job_matrix, chain):
+    def __calc_robustness_margins(self, job_matrix, chain, results):
         """
         This function computes robustness margins that relate to an isolated cause-effect chain 
         (not the set of cause-effect chains).
@@ -170,22 +173,24 @@ class calc_latencies_robustness(object):
                 if len(job_matrix[task][job].successor_jobs) == 0:
                     pass
                 else:
-                    next_task_next_job_num = job_matrix[task][job].successor_jobs[-1].job_number 
+                    next_task_next_job_num = job_matrix[task][job].successor_jobs[-1].job_number + 1 # job_number, but index must be smaller by one
     
-                    if next_task_next_job_num < len(job_matrix[task+1]):
-                        job_matrix[task][job].robustness_margin = job_matrix[task+1][next_task_next_job_num].Rmin - job_matrix[task][job].Dmax
-                        job_matrix[task][job].rm_job = job_matrix[task+1][next_task_next_job_num]
-                        #print("Job: %s -> %s -  RM: %d" % (job_matrix[task][job].name,job_matrix[task+1][next_task_next_job_num].name , job_matrix[task][job].robustness_margin))
+                    if next_task_next_job_num-1 < len(job_matrix[task+1]):
+                        job_matrix[task][job].robustness_margin = job_matrix[task+1][next_task_next_job_num-1].Rmin - job_matrix[task][job].Dmax
+                        job_matrix[task][job].rm_job = job_matrix[task+1][next_task_next_job_num-1]
+                        #print("Job: %s -> %s -  RM: %d" % (job_matrix[task][job].name,job_matrix[task+1][next_task_next_job_num-1].name , job_matrix[task][job].robustness_margin))
                     else:
                         i += 1
+                        copy_chain = copy.copy(self.chain)                   
                         job_matrix[task][job].robustness_margin = \
-                        job_matrix[task+1][next_task_next_job_num - 1].Rmin + \
-                        job_matrix[task+1][next_task_next_job_num - 1].period * i - \
-                        job_matrix[task][job].Dmax 
-                        job_matrix[task][job].rm_job = job_matrix[task+1][next_task_next_job_num - 1]
-                        #print("Job: %s -> %s -  RM: %d" % (job_matrix[task][job].name,job_matrix[task+1][next_task_next_job_num - 1].name , job_matrix[task][job].robustness_margin))
+                        job_matrix[task+1][next_task_next_job_num-2].Rmin - job_matrix[task][job].Dmax + self.chain.tasks[task+1].in_event_model.P * i 
+                        job_matrix[task][job].rm_job = self.chain.tasks[task+1].instantiate_job(job_number=next_task_next_job_num, \
+                                                                                                semantics=self.semantics, \
+                                                                                                wcrt=results[copy_chain.tasks[task+1]].wcrt, \
+                                                                                                bcrt=results[copy_chain.tasks[task+1]].bcrt)
+                        #print("Job: %s -> %s -  RM: %d" % (job_matrix[task][job].name, job_matrix[task][job].rm_job.name, job_matrix[task][job].robustness_margin))
 
-        # ensure that also task deadline is satisfied
+        # pre-computing values
         max_rm_dict = dict()
         for task in self.chain.tasks:        
             if self.semantics == 'BET_with_known_WCRTs':
@@ -195,12 +200,15 @@ class calc_latencies_robustness(object):
                 #print max_rm_dict[task.name]
             else:
                 assert False, 'Error: specified semantics are not supported.'
-              
+               
         for task in job_matrix:                
             for job in task:
                 if job.robustness_margin != None:
-                    job.robustness_margin = min(job.robustness_margin, max_rm_dict[job.task_name]) 
-
+                    # corrected by task-deadline-constraint
+                    job.robustness_margin_corrected = min(job.robustness_margin, max_rm_dict[job.task_name]) 
+        
+      
+        
         # setting the robustness margin for the task based on job robustness margins
         i=-1
         for task in job_matrix:          
@@ -215,15 +223,35 @@ class calc_latencies_robustness(object):
                 'ERROR: unexpected value for robustness margin'
             else:
                 assert self.task_robustness_margins_dict[chain.tasks[i].name] == float('inf'), \
-                'ERROR: unexpected value for robustness margin'                
-                
-        # set robustness margin for tail task
+                'ERROR: unexpected value for robustness margin'             
         if chain.e2e_deadline == None or chain.e2e_deadline == 'n/a':
             self.task_robustness_margins_dict[chain.tasks[-1].name] = \
             max_rm_dict[chain.tasks[-1].name]
         elif isinstance(chain.e2e_deadline, int):
-            self.task_robustness_margins_dict[chain.tasks[-1].name] = \
-            min(chain.e2e_deadline - self.max_data_age, max_rm_dict[chain.tasks[-1].name])        
+            self.task_robustness_margins_dict[chain.tasks[-1].name] = chain.e2e_deadline - self.max_data_age                  
+                   
+                
+        # setting the TASK-DEADLINE-CORRECTED robustness margin for the task based on job robustness margins
+        i=-1
+        for task in job_matrix:          
+            i += 1
+            self.task_robustness_margins_corrected_dict[chain.tasks[i].name] = float('inf')
+            for job in task:         
+                if job.robustness_margin_corrected != None:
+                    if job.robustness_margin_corrected < self.task_robustness_margins_corrected_dict[chain.tasks[i].name]:
+                        self.task_robustness_margins_corrected_dict[chain.tasks[i].name] = job.robustness_margin_corrected
+            if not chain.tasks[i].name == chain.tasks[-1].name:
+                assert self.task_robustness_margins_corrected_dict[chain.tasks[-1].name] != float('inf'), \
+                'ERROR: unexpected value for robustness margin'
+            else:
+                assert self.task_robustness_margins_corrected_dict[chain.tasks[i].name] == float('inf'), \
+                'ERROR: unexpected value for robustness margin'      
+        if chain.e2e_deadline == None or chain.e2e_deadline == 'n/a':
+            self.task_robustness_margins_corrected_dict[chain.tasks[-1].name] = \
+            max_rm_dict[chain.tasks[-1].name]
+        elif isinstance(chain.e2e_deadline, int):
+            self.task_robustness_margins_corrected_dict[chain.tasks[-1].name] = \
+            min(chain.e2e_deadline - self.max_data_age, max_rm_dict[chain.tasks[-1].name])                         
             
     
     def __gcd(self, a, b):
@@ -245,13 +273,21 @@ def compute_rm_min_all_chains(chain_results_dict, tasks, chains):
     """   
     rm_min_all_chains_dict = dict()
     for task in tasks:
-        rm_min_all_chains_dict[task.name]=float('Inf')    
-                      
+        rm_min_all_chains_dict[task.name]=float('Inf')     
     for task in tasks:
         for chain in chains:
             if task in chain.tasks:
                 if rm_min_all_chains_dict[task.name] > chain_results_dict[chain.name].task_robustness_margins_dict[task.name]:
                     rm_min_all_chains_dict[task.name] = chain_results_dict[chain.name].task_robustness_margins_dict[task.name]
-
-    
     chain_results_dict['RMs_system']= rm_min_all_chains_dict
+    
+    # corrected values (satisfaction of the task deadlines)
+    rm_min_all_chains_corrected_dict = dict()
+    for task in tasks:
+        rm_min_all_chains_corrected_dict[task.name]=float('Inf')     
+    for task in tasks:
+        for chain in chains:
+            if task in chain.tasks:
+                if rm_min_all_chains_corrected_dict[task.name] > chain_results_dict[chain.name].task_robustness_margins_corrected_dict[task.name]:
+                    rm_min_all_chains_corrected_dict[task.name] = chain_results_dict[chain.name].task_robustness_margins_corrected_dict[task.name]
+    chain_results_dict['RMs_corrected_system']= rm_min_all_chains_corrected_dict    

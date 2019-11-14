@@ -36,9 +36,10 @@ class draw_read_data_intervals(object):
     # Number of Extra Periods after Hyperperiod
     __period_scale = 4
 
-    def __init__(self, chain_results, dependency_polygon = False, robustness_margin = "none", max_data_age = "none"):
+    def __init__(self, chain_results, semantics, dependency_polygon = False, robustness_margin = "none", max_data_age = "none"):
         
         self.__chain_results = chain_results
+        self.__semantics = semantics
         self.__cut_periods = 0
 
         width , height = self.__calc_img_size()
@@ -219,6 +220,9 @@ class draw_read_data_intervals(object):
         if options == "all":
             for task in self.__chain_results.job_matrix:
                 for job in task:
+#                     print("Job: %s -> %s -  RM: %d" % (self.__chain_results.job_matrix[task][job].name, \
+#                                                        self.__chain_results.job_matrix[task][job].rm_job.name, \
+#                                                        self.__chain_results.job_matrix[task][job].robustness_margin))
                     if job.robustness_margin != None :
                         self.__draw_robustness_margins_job(job)
 
@@ -244,7 +248,7 @@ class draw_read_data_intervals(object):
         elif options == "none":
             return
         else:
-            print(self.CRED+"PYCPA_DRAW -> draw_robustness_margins() Error: Option:\" " + str(options) + "\" is invalid! - Valid Options: all|first|last|none"+self.CEND)
+            print(self.CRED+"Draw_robustness_margins() Error: Option:\" " + str(options) + "\" is invalid! - Valid Options: all|first|last|none"+self.CEND)
 
     def __draw_robustness_margins_job(self, job):
         task_num = None
@@ -277,6 +281,7 @@ class draw_read_data_intervals(object):
                 off_x + job.robustness_margin * self.__scale * 3 / 4,   off_y + 45  + ((job.job_number - 1) % modulus_D) * height_D,
             ), "fill: #F78181; opacity:1;", name="robustness_margin")
             self.__img._text("RM: %d" % job.robustness_margin, off_x + (job.robustness_margin * self.__scale / 2), off_y + 140, "fill: red;")
+
 
     def draw_dependency_polygon(self, options = False):
         if options == False:
@@ -411,17 +416,24 @@ class draw_read_data_intervals(object):
     
         self.__img._polygon(str_points, "fill:#F5DA81; stroke:none; opacity:1;", name="dependency_polygon")     
 
+
     def draw_max_data_age(self, options = "all"):
         longest_path = None
         max_data_age = 0
         _len = len(self.__chain_results.path_matrix[0])
         if options == "last":
             for path in self.__chain_results.path_matrix:
-                if path[-1].Rmax + path[-1].wcrt - path[0].Rmin >= max_data_age :
-                    max_data_age = path[-1].Rmax + path[-1].wcrt - path[0].Rmin
-                    longest_path = path
+                if self.__semantics == 'LET':
+                    if path[-1].Rmax + path[-1].let - path[0].Rmin >= max_data_age :
+                        max_data_age = path[-1].Rmax + path[-1].let - path[0].Rmin
+                        longest_path = path                 
+                elif self.__semantics == 'BET_with_known_WCRTs':
+                    if path[-1].Rmax + path[-1].wcrt - path[0].Rmin >= max_data_age :
+                        max_data_age = path[-1].Rmax + path[-1].wcrt - path[0].Rmin
+                        longest_path = path                    
+                else:
+                    assert False, 'ERROR: semantics are not supported'
             self.__draw_max_data_age_poly(longest_path, max_data_age)
-
             # Draw Text
             self.__img._text_ellipse("Max Data Age: %d" % max_data_age, self.__off_x_g + (longest_path[0].Rmin + max_data_age / 2) * self.__scale, (_len) * 200, "fill: white; stroke: black; stroke-width: 2;")
             self.__img._line(self.__off_x_g + longest_path[0].Rmin * self.__scale, _len * 200, self.__off_x_g + (longest_path[0].Rmin + max_data_age) * self.__scale, _len * 200)
@@ -431,11 +443,17 @@ class draw_read_data_intervals(object):
 
         elif options == "first":
             for path in self.__chain_results.path_matrix:
-                if path[-1].Rmax + path[-1].wcrt - path[0].Rmin > max_data_age :
-                    max_data_age = path[-1].Rmax + path[-1].wcrt - path[0].Rmin
-                    longest_path = path
+                if self.__semantics == 'LET':
+                    if path[-1].Rmax + path[-1].let - path[0].Rmin >= max_data_age :
+                        max_data_age = path[-1].Rmax + path[-1].let - path[0].Rmin
+                        longest_path = path                 
+                elif self.__semantics == 'BET_with_known_WCRTs':
+                    if path[-1].Rmax + path[-1].wcrt - path[0].Rmin >= max_data_age :
+                        max_data_age = path[-1].Rmax + path[-1].wcrt - path[0].Rmin
+                        longest_path = path                    
+                else:
+                    assert False, 'ERROR: semantics are not supported'
             self.__draw_max_data_age_poly(longest_path, max_data_age)
-
             # Draw Text
             self.__img._text_ellipse("Max Data Age: %d" % max_data_age, self.__off_x_g + (longest_path[0].Rmin + max_data_age / 2) * self.__scale, (_len) * 200, "fill: white; stroke: black; stroke-width: 2;")
             self.__img._line(self.__off_x_g + longest_path[0].Rmin * self.__scale, _len * 200, self.__off_x_g + (longest_path[0].Rmin + max_data_age) * self.__scale, _len * 200)
@@ -444,13 +462,27 @@ class draw_read_data_intervals(object):
         
         elif options == "all":
             for path in self.__chain_results.path_matrix:
-                if path[-1].Rmax + path[-1].wcrt - path[0].Rmin >= max_data_age :
-                    max_data_age = path[-1].Rmax + path[-1].wcrt - path[0].Rmin
-                    longest_path = path
+                if self.__semantics == 'LET':
+                    if path[-1].Rmax + path[-1].let - path[0].Rmin >= max_data_age :
+                        max_data_age = path[-1].Rmax + path[-1].let - path[0].Rmin
+                        longest_path = path                 
+                elif self.__semantics == 'BET_with_known_WCRTs':
+                    if path[-1].Rmax + path[-1].wcrt - path[0].Rmin >= max_data_age :
+                        max_data_age = path[-1].Rmax + path[-1].wcrt - path[0].Rmin
+                        longest_path = path                    
+                else:
+                    assert False, 'ERROR: semantics are not supported'
             mod = 0
+                           
             for path in self.__chain_results.path_matrix:
-                if path[-1].Rmax + path[-1].wcrt - path[0].Rmin == max_data_age :
-                    self.__draw_max_data_age_poly(path, max_data_age)
+                if self.__semantics == 'LET':
+                    if path[-1].Rmax + path[-1].let - path[0].Rmin == max_data_age :
+                        self.__draw_max_data_age_poly(path, max_data_age)              
+                elif self.__semantics == 'BET_with_known_WCRTs':
+                    if path[-1].Rmax + path[-1].wcrt - path[0].Rmin == max_data_age :
+                        self.__draw_max_data_age_poly(path, max_data_age)               
+                else:
+                    assert False, 'ERROR: semantics are not supported'                
 
                     mod = mod + 1
                     if mod % 2 == 0:
@@ -467,7 +499,7 @@ class draw_read_data_intervals(object):
         elif options == "none":
             return
         else:
-            print(self.CRED+"PYCPA_DRAW -> draw_max_data_age() Error: Option:\" " + str(options) + "\" is invalid! - Valid Options: all|first|last|none"+self.CEND)
+            print(self.CRED+"draw_max_data_age() Error: Option:\" " + str(options) + "\" is invalid! - Valid Options: all|first|last|none"+self.CEND)
 
 
     
@@ -627,12 +659,14 @@ class draw_dependency_graph(object):
                     else:
                         c += 1 
         return n, i
+
         
 class draw_results(object):
 
-    def __init__(self, chains, tasks):
+    def __init__(self, chains, tasks, chain_results_dict):
         self.chains = chains
         self.tasks = tasks
+        self.chain_results_dict = chain_results_dict
         width, height = self.pixel_size()
         self.__img = image("test.svg", width, height)
         self.color_tasks =  ["#f18d8d","#8df1aa","#f1d08d","#f18de6","#f7f687","#8e8df1","#8df0f1"]
@@ -718,32 +752,27 @@ class draw_results(object):
             off_x = 50
 
         for c in range(len(self.chains)):
+            chain = self.chains[c]
             off_y += 30
             self.__img._text_line(self.chains[c].name, off_x, off_y, "30px")
             off_y_0 = off_y
             off_y += 30
-            self.__img._text_line("  Max Data Age:  " + str(self.chains[c].max_data_age), off_x + 20, off_y, "20px")
+            self.__img._text_line("  Max e2e-latency: " + str(self.chain_results_dict[chain.name].max_data_age), off_x + 20, off_y, "20px")
             off_y += 30
-            self.__img._text_line("  Robustness Margins: ", off_x + 20, off_y, "20px")
+            self.__img._text_line("  Robustness margins w.r.t. isolated chain: ", off_x + 20, off_y, "20px")
             off_y += 30
-            for t in range(len(self.chains[c].results.job_matrix) - 1):
-                RM = float("inf")
-                for j in range(len(self.chains[c].results.job_matrix[t])):
-                    if self.chains[c].results.job_matrix[t][j].robustness_margin < RM:
-                        RM = self.chains[c].results.job_matrix[t][j].robustness_margin
-                task_name = self.chains[c].results.job_matrix[t][j].parent_task.name
-                task_name_next = self.chains[c].results.job_matrix[t + 1][j].parent_task.name
-                self.__img._text_line(task_name + " to " + task_name_next + ":  " + str(RM), off_x + 30, off_y, "15px")   
-                self.__img._circle(off_x + 23, off_y - 5, 5 , "fill:" + self.task_color(task_name))
+            for task in chain.tasks:
+                self.__img._text_line(task.name + ": " + str(self.chain_results_dict[chain.name].task_robustness_margins_dict[task.name]), off_x + 30, off_y, "15px")   
+                self.__img._circle(off_x + 23, off_y - 5, 5 , "fill:" + self.task_color(task.name))
                 off_y += 30             
 
             self.__img._arrow_line(off_x + 10, off_y - 30, off_x + 10, off_y_0 + 15, 10, "fill:" + self.chain_color(self.chains[c].name))
 
         off_y += 50
-        self.__img._text_line("Robustness Margin (All Chains)", off_x, off_y, "30px")
+        self.__img._text_line("Robustness margin w.r.t. all chains", off_x, off_y, "30px")
         for task in self.tasks:
             off_y += 30
-            self.__img._text_line(task.name + ":  " + str(task.robustness_margin), off_x + 20, off_y, "20px")
+            self.__img._text_line(task.name + ":  " + str(self.chain_results_dict['RMs_system'][task.name]), off_x + 20, off_y, "20px")
             self.__img._circle(off_x + 8, off_y - 8, 8 , "fill:" + self.task_color(task.name))
 
 class image(object):

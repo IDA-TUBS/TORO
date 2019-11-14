@@ -65,6 +65,7 @@ class Job(object):
         self.Dmin = 0
         self.Dmax = 0
         self.robustness_margin = None
+        self.robustness_margin_corrected = None        
         self.successor_jobs = list() # stores successor jobs for that follows() returns True
         self.set_RI_DI(knowledge_base)
 

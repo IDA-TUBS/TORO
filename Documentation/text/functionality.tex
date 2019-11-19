@@ -1,9 +1,10 @@
 \section{Functionality}
+\label{sec:functionality}
 %
 This chapter describes the terms and methods that are used by the tool \Tool.
 
 
-\subsection{Input: System Specification}
+\subsection{Inputs: System Specification}
 This section explains what type of systems are accepted by \Tool as input.
 In section \ref{sec:system-model}, a general system model is introduced first. 
 All systems that fulfill this system model can be analyzed by \Tool.
@@ -193,14 +194,18 @@ is a cause-effect chain which has the following properties:
 	
 
 
+\subsection{Computations}
+\label{sec:analysis}
+Please refer to the paper in the appendix for details.
+
+
+
 \subsection{Outputs: Latencies and Robustness Margins}
 This section describes the expected outputs of the analysis, which are both numerical and graphical.
 
 
-\subsubsection{Numerical Outputs}
-
-\paragraph{Maximum End-to-End Latencies}
-Feiertag et al. \cite{feiertag2009compositional} list different definitions for end-to-end latencies of cause-effect chains.  
+\subsubsection{Maximum End-to-End Latencies}
+There are different definitions for end-to-end latencies of cause-effect chains.  
 Each definition is relevant in specific contexts, but the most important one is the following:
 %
 \begin{definition}[End-to-end latency, also: data age]
@@ -228,7 +233,7 @@ An end-to-end deadline $\eteDeadline$ is the maximum tolerable end-to-end latenc
 %
 
 
-\paragraph{Robustness Margins For a Single Cause-Effect Chain}
+\subsubsection{Robustness Margins For a Single Cause-Effect Chain}
 While the maximum end-to-end latency of a cause-effect chain is an important property of the present design, robustness margins indicate to what degree the tasks in a cause-effect chain can be extended in terms of their worst-case response time, resp. LET, without violating the end-to-end deadline. 
 \bigskip
 
@@ -263,7 +268,7 @@ The LET-triggered cause-effect chain $\cec$ still satisfies its end-to-end deadl
 \bigskip
 
 
-\paragraph{Robustness Margins For Multiple Cause-Effect Chain}
+\subsubsection{Robustness Margins For Multiple Cause-Effect Chains}
 A task of an application may be part of several cause-effect chains.
 Consequently, increasing the worst-case response time (or LET) of this particular task may have an impact on all cause-effect chains that share this task.
 We can find new robustness margins $\marginAll{\task[k]}$ (instead of: $\margin{\task[k]}$) which guarantee that \emph{all} cause-effect chains in the application still satisfy their deadlines under a disturbance $\disturb[k]$ resp. $\disturbLet{k}$.
@@ -303,21 +308,8 @@ All LET-triggered cause-effect chain $\cec$ in $\mathcal{S}$ still satisfy their
 \end{tcolorbox}
 
 
-\subsubsection{Graphical Outputs}
-The tool \Tool provides several graphical outputs.
-Graph 1 summarizes the results, 
-graph 2 and graph 3 offer detailed insights into the analysis as presented in the following chapter \ref{sec:analysis}.
-%
 
-\paragraph{Graph 1: Summary}
 
-\paragraph{Graph 2: Reachability Graph}
 
-\paragraph{Graph 3: Interval Graph.}
 
-\bigskip
 
-\subsection{Computation of Latencies and Robustness Margins}
-\label{sec:analysis}
-
-Please refer to the paper in the appendix for details.

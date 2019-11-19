@@ -102,6 +102,7 @@
 
 \usepackage[justification=raggedright]{caption}
 \usepackage{xargs}
+\usepackage{pdfpages}
 \input{notation.tex}
 
 % Some useful commands and a notation package
@@ -190,8 +191,8 @@
 % \includegraphics[width=5cm]{img/iTUBS}\\[3cm] 
 
 \title{\Tool: \\
-\LARGE{A TOol to compute RObustness margins}\\ 
-\LARGE{for cause-effect chains}.}
+\LARGE{A TOol to evaluate the RObustness}\\ 
+\LARGE{of cause-effect chains}.}
 \author{
 Leonie Köhler, M.Sc.\\%
 Nikolas Brendes, B.Sc. \\
@@ -238,13 +239,11 @@ iTUBS \\ Braunschweig
 \newpage
 \input{text/usability.tex}
 \newpage
-%\input{text/technical_documents.tex}
-
-
-\pagestyle{plain}
-\bibliographystyle{ieeetr}
-\bibliography{references}
-
+\input{text/internals}
+\newpage
 \appendix
+\section{Appendix} 
+\includepdf[pages=-]{text/ecrts2020_v1.pdf}
+
 
 \end{document}

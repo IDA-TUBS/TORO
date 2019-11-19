@@ -328,15 +328,19 @@ def perform_analysis(_dir):
     chain_log += "==================================================================\n"
     chain_log += "ROBUSTNESS MARGINS W.R.T. TO THE SET OF CAUSE-EFFECT CHAINS \n"    
     chain_log += "------------------------------------------------------------------\n"           
-    for task in chain.tasks:
-        chain_log += ("\t Robustness margin of task \"" + task.name + "\" in " + \
-                chain.name + " is " + \
-                str(chain_results_dict['RMs_system'][task.name]) + \
-                " (e2e-deadline satisfied). \n")
-        chain_log += ("\t Robustness margin of task \"" + task.name + "\" in " + \
-                chain.name + " is " + \
-                str(chain_results_dict['RMs_corrected_system'][task.name]) + \
-                " (e2e-deadline & task deadlines satisfied). \n")                     
+    task_list = list()
+    for chain in read_data.chains:
+        for task in chain.tasks:
+            task_list.append(task.name)
+            if task.name not in task_list:
+                chain_log += ("\t Robustness margin of task \"" + task.name + "\" in " + \
+                        chain.name + " is " + \
+                        str(chain_results_dict['RMs_system'][task.name]) + \
+                        " (e2e-deadline satisfied). \n")
+                chain_log += ("\t Robustness margin of task \"" + task.name + "\" in " + \
+                        chain.name + " is " + \
+                        str(chain_results_dict['RMs_corrected_system'][task.name]) + \
+                        " (e2e-deadline & task deadlines satisfied). \n")                     
     with open(_dir + "/RESULTS_LOG.txt", "w") as log_file:
         log_file.write(__banner() + log + chain_log[1:])    
     print "\n"

@@ -1,4 +1,3 @@
 chain_name;e2e_deadline;members
-BETchain_1;50;BETtask_1;BETtask_3;BETtask_4;BETtask_2
-BETchain_2;n/a;BETtask_1;BETtask_5;BETtask_4
-BETchain_3;n/a;BETtask_4;BETtask_5
+BETchain1;50;BET_T1;BET_T3;BET_T2
+BETchain2;n/a;BET_T1;BET_T4

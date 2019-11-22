@@ -1,14 +1,14 @@
 \section{Functionality}
 \label{sec:functionality}
 %
-This chapter describes the terms and methods that are used by the tool \Tool.
+This chapter describes the terminology and principle of the tool \Tool.
 
 
-\subsection{Inputs: System Specification}
-This section explains what type of systems are accepted by \Tool as input.
-In section \ref{sec:system-model}, a general system model is introduced first. 
+\subsection{System Specification}
+\label{sec:inputs}
+This section introduces the system model of \Tool.
 All systems that fulfill this system model can be analyzed by \Tool.
-Section \ref{sec:system-model-examples} lists some practical examples to which the system model applies. 
+At the end of the section, some practical examples for such systems are given.
 
 
 \subsubsection{System Model}
@@ -30,7 +30,7 @@ A \emph{task} $\taskStd \in \taskSet$ is a service-consuming entity.
 This definition is very general and corresponds to the concept of a task in the real-time community.
 Since consumed service can be processing service or communication service; we do not need to distinguish between notions like 'software tasks' and 'messages'. 
 The $j$th instance of a task $\taskStd$ is called job $\jobStd$.
-Two variants of a task exist: 
+Two variants of a task exist (see also Figure \ref{fig:task}): 
 \bigskip
 
 %\begin{tcolorbox}[colback=black!5!white,colframe=black!75!black, breakable, title= Bounded execution time (BET) task]
@@ -48,11 +48,12 @@ The bounded execution time (BET) task is characterized by the following attribut
 \end{itemize}
 \end{definition}
 
+\newpage
 \begin{definition}[Logical execution time task]
 The logical execution time (LET) task is characterized by
 \begin{itemize}[leftmargin=*,itemsep=0pt]
 	\item \emph{Periodic activation model.} A task $\taskStd$ is periodically activated with period $\periodStd{i}$.
-	\item \emph{Release offset.} A constant release offset $\offsetStd{i}$ may applies after each activation of task $\taskStd$.	
+	\item \emph{Release offset.} A constant release offset $\offsetStd{i}$ may applies after each activation of task~$\taskStd$.	
 		\item \emph{Logical execution time.} A task with logical execution time (LET) semantics reads all required inputs at its release time.  All outputs are written to registers with the elapse of the $\LetStd{i}$. 
 	\item \emph{Allocation.} A task is associated with the resource from which it receives service.		
 \end{itemize}
@@ -82,7 +83,8 @@ The logical execution time (LET) task is characterized by
 \end{figure}
 
 
-An \emph{application} is a directed graph $\app = (\taskSet, \dependSet)$, where the set of vertices $\taskSet$ represents the tasks in the application and the set of directed edges $\dependSet$ represents the data-flow dependencies among the tasks.
+An \emph{application} is a directed graph $\app = (\taskSet, \dependSet)$, where the set of vertices $\taskSet$ represents the tasks in the application and the set of directed edges $\dependSet$ represents the data-flow dependencies among the tasks. 
+An exemplary application is shown in Figure \ref{fig:model_applications}.
 \bigskip
 
 \begin{definition}[Cause-effect chain]
@@ -90,7 +92,6 @@ A cause-effect chain
 $\cec=(\task[1], \task[2], \ldots, \task[n])$ 
 is a finite directed walk in an application $\app$ which is executed on a hardware platform $\platform$.
 \end{definition}
-\bigskip
 
 \begin{definition}[Instance of a cause-effect chain]
 An instance of a cause-effect chain $\cec(\jobSeq)$ 
@@ -99,40 +100,13 @@ $\left(\job[1][j_1], \job[2][j_2], \ldots, \job[n][j_n]\right)$, where each job 
 \end{definition}
 %
 The concepts of a cause-effect chain and an instance of a cause-effect chain are illustrated in Figure \ref{fig:cec}.
-The possible instances of a cause-effect chain can be determined by a data flow analysis, which checks whether a data flow through the sequence of jobs $\job[1][j_1] \job[2][j_2], \ldots, \job[n][j_n]$ is at all possible.
+The possible instances of a cause-effect chain can be determined by a data flow analysis, which checks whether a data flow through the sequence of jobs $\job[1][j_1] \job[2][j_2], \ldots, \job[n][j_n]$ is at all possible. 
+Please refer to the appendix for details how to perform such a data flow analysis.
 \bigskip
 
-The tool \Tool supports time-triggered and LET-triggered cause-effect chains:
-
-\begin{definition}[Time-triggered cause-effect chain]
-A time-triggered cause-effect chain 
-$\ttChain$ is a cause-effect chain which has the following properties: 
-\begin{itemize}[leftmargin=*,itemsep=0pt]
-	\item Each task $\task[i]$ in $\ttChain$ is a periodically activated BET task with period $\period{i}$ and release offset $\offset{i}$. 
-	\item The deadline of each task $\task[i]$ in $\ttChain$ is arbitrary. 
-	%before or at the end of the period. 
-	\item At the system start $t_0$, all tasks in $\letChain$ are activated with release offsets $\offset{i}$.
-\end{itemize}
-\end{definition}
-
-\begin{definition}[LET-triggered cause-effect chain]
-A LET-triggered cause-effect chain $\letChain$ 
-is a cause-effect chain which has the following properties: 
-\begin{itemize}[leftmargin=*,itemsep=0pt]
-	\item Each task $\task[i]$ in $\letChain$ is a LET task.
-	\item The deadline of each task $\task[i]$ in $\letChain$ is arbitrary.
-	%before or at the end of the period.  
-	\item At the system start $t_0$, all tasks in $\letChain$ are activated with release offsets $\offset{i}$.
-\end{itemize}
-\end{definition}
-
-\Tool assumes that each task can satisfy its deadline or LET.
-
-
-
+The tool \Tool supports time-triggered and LET-triggered cause-effect chains, i.e., cause-effect chains with consists either of only BET tasks or LET tasks.
 
 \begin{figure}
-%\centering
 %
 \begin{subfigure}[b]{0.5\textwidth}
 	\includegraphics[trim=0.5cm 0.5cm 0.5cm 0.5cm, width=\textwidth]{fig/paper/model_application.pdf}
@@ -165,43 +139,36 @@ is a cause-effect chain which has the following properties:
 \label{fig:cec}
 \end{figure}
 
-
-
-
+\newpage
 \subsubsection{Exemplary Analyzable Systems}
 \label{sec:system-model-examples}
 
 \textbf{Application on a single-core ECU} under the following assumptions
 \begin{itemize}
-	\item Only time-triggered and LET-triggered cause-effect chains.
+	\item Only time-triggered xor LET-triggered cause-effect chains.
 	\item Each task meets its deadline or LET.
 \end{itemize}
 
 \textbf{Application on a multi-core ECU} under the following assumptions
 \begin{itemize}
-	\item Only time-triggered and LET-triggered cause-effect chains.
+	\item Only time-triggered xor LET-triggered cause-effect chains.
 	\item Each task meets its deadline or LET.
-	\item All cores have a common clock, all schedules start simulateneously.
+	\item All cores have a common clock, all schedules start simultaneously.
 \end{itemize}
 %
 \textbf{Distributed application on a systems with multiple ECUS connected by data buses and networks} under the following assumptions
 	\begin{itemize}
-	\item Only time-triggered and LET-triggered cause-effect chains. 
+	\item Only time-triggered xor LET-triggered cause-effect chains. 
 	\emph{Note that messages can also be modeled as tasks.}
 	\item Each task meets its deadline or LET.
-	\item All clocks are synchronized, all schedules start simulateneously.
+	\item All clocks are synchronized, all schedules start simultaneously.
 \end{itemize} 
 	
-
-
-\subsection{Computations}
-\label{sec:analysis}
-Please refer to the paper in the appendix for details.
-
-
-
-\subsection{Outputs: Latencies and Robustness Margins}
-This section describes the expected outputs of the analysis, which are both numerical and graphical.
+\newpage
+\subsection{Latencies and Robustness Margins}
+\label{sec:outputs}
+This section describes which system properties are computed by \Tool. 
+For details \emph{how} these properties are computed, please refer to the appendix.
 
 
 \subsubsection{Maximum End-to-End Latencies}
@@ -233,9 +200,24 @@ An end-to-end deadline $\eteDeadline$ is the maximum tolerable end-to-end latenc
 %
 
 
-\subsubsection{Robustness Margins For a Single Cause-Effect Chain}
-While the maximum end-to-end latency of a cause-effect chain is an important property of the present design, robustness margins indicate to what degree the tasks in a cause-effect chain can be extended in terms of their worst-case response time, resp. LET, without violating the end-to-end deadline. 
+\subsubsection{Robustness Margins}
+\label{sec:robustness-margins}
+While the maximum end-to-end latency of a cause-effect chain is an important property of the present design, robustness margins indicate to what degree the tasks in a cause-effect chain can be extended in terms of their worst-case response time, resp. LET, without violating timing constraints. 
 \bigskip
+
+The tool \Tool computes four different types of robustness margins
+\begin{itemize}
+	\item Robustness margins for an isolated cause-effect chain  which guarantees the end-to-end deadline
+	\item Robustness margins for an isolated cause-effect chain  which guarantees the end-to-end deadline \emph{and} all task deadlines
+	\item Robustness margins for a set of possibly dependent cause-effect chains which guarantees all end-to-end deadlines,
+	\item Robustness margins for a set of possibly dependent cause-effect chains which guarantees all end-to-end deadlines \emph{and} all task deadlines.			
+\end{itemize}
+The last type of robustness margin is probably the most important one in practice.
+
+
+\paragraph{Robustness Margins For an Isolated Cause-Effect Chain} 
+This section states the meaning of robustness margins for an isolated cause-effect chain. 
+The theorems are based on the paper in the appendix.
 
 \begin{tcolorbox}[colback=black!5!white,colframe=black!75!black, breakable, 
 title= \textbf{Theorem}: Robustness test for a single time-triggered cause-effect chain]
@@ -249,6 +231,14 @@ The time-triggered cause-effect chain $\cec$ still satisfies its end-to-end dead
 	& \forall \task[k] \in \cec: \:
 	\disturb[k] < \margin{\task[k]} .
 \end{align*}	
+
+The time-triggered cause-effect chain $\cec$ still satisfies its end-to-end deadline $\eteDeadline$ \emph{and its task deadlines} under the increase of the worst-case response times of its tasks $\task[k]$ by $\disturb[k]$, if  
+\begin{align*}
+	& \forall \task[k] \in \cec: \:
+	\disturb[k] < 
+	\min \{\margin{\task[k]}, \: \deadline{k} - \wcrt{k}\}.
+\end{align*}	
+
 \end{tcolorbox}
 \smallskip
 
@@ -264,11 +254,19 @@ The LET-triggered cause-effect chain $\cec$ still satisfies its end-to-end deadl
 	& \forall \task[k] \in \cec: \:
 	\disturbLet{k} < \margin{\task[k]}. 
 \end{align*}	
+
+The LET-triggered cause-effect chain $\cec$ still satisfies its end-to-end deadline $\eteDeadline$ \emph{and its task deadlines} under the increase of the worst-case response times of its tasks $\task[k]$ by $\disturb[k]$, if  
+\begin{align*}
+	& \forall \task[k] \in \cec: \:
+	\disturb[k] < 
+	\min \{\margin{\task[k]}, \: \deadline{k} - \Let{k}\}.
+\end{align*}	
+
 \end{tcolorbox}
 \bigskip
 
-
-\subsubsection{Robustness Margins For Multiple Cause-Effect Chains}
+\newpage
+\paragraph{Robustness Margins for a Set of Possibly Dependent Cause-Effect Chains}
 A task of an application may be part of several cause-effect chains.
 Consequently, increasing the worst-case response time (or LET) of this particular task may have an impact on all cause-effect chains that share this task.
 We can find new robustness margins $\marginAll{\task[k]}$ (instead of: $\margin{\task[k]}$) which guarantee that \emph{all} cause-effect chains in the application still satisfy their deadlines under a disturbance $\disturb[k]$ resp. $\disturbLet{k}$.
@@ -288,6 +286,14 @@ All time-triggered cause-effect chain $\cec$ in $\mathcal{S}$ still satisfy thei
 	& \forall \cec: \forall \task[k] \in \cec: \:
 	\disturb[k] < \marginAll{\task[k]}. 
 \end{align*}	
+
+All time-triggered cause-effect chain $\cec$ in $\mathcal{S}$ still satisfy their end-to-end deadlines $\eteDeadline$ \emph{and all task deadlines} under the increase of the worst-case response times of its tasks $\task[k]$ by $\disturbLet{k}$, if  
+\begin{align*}
+	& \forall \task[k] \in \cec: \:
+	\disturb[k] < 
+	\min \{\marginAll{\task[k]}, \: \deadline{k} - \wcrt{k}\}.
+\end{align*}
+
 \end{tcolorbox}
 \bigskip
 
@@ -305,6 +311,14 @@ All LET-triggered cause-effect chain $\cec$ in $\mathcal{S}$ still satisfy their
 	& \forall \cec: \forall \task[k] \in \cec: \:
 	\disturbLet{k} < \marginAll{\task[k]}. 
 \end{align*}	
+
+All LET-triggered cause-effect chain $\cec$ in $\mathcal{S}$ still satisfy their end-to-end deadlines $\eteDeadline$ \emph{and all task deadlines} under the increase of the LETs of its tasks $\task[k]$ by $\disturbLet{k}$, if  
+\begin{align*}
+	& \forall \task[k] \in \cec: \:
+	\disturb[k] < 
+	\min \{\marginAll{\task[k]}, \: \deadline{k} - \Let{k}\}.
+\end{align*}	
+
 \end{tcolorbox}
 
 

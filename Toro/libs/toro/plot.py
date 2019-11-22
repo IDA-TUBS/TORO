@@ -677,7 +677,7 @@ class draw_results(object):
         for chain in chains:            
             self.draw_chain(chain, self.color_chains[r])
             r = (r + 1) % len(self.color_chains)
-        self.draw_text_summary()
+        #self.draw_text_summary()
 
     def save_file(self, filename=""):
        
@@ -722,17 +722,16 @@ class draw_results(object):
 
 
     def pixel_size(self):
+        x = (len(self.tasks) * 150) / (math.pi) + 150
         y = 50
-        x = 900
-        for c in range(len(self.chains)):
-            y += 30 * 4
-            for t in range(len(self.chains[c].results.job_matrix) - 1):
-                y += 30
-        y += 50
-        for task in self.tasks:
-            y += 30
-        y += 50
-
+        if x > 600:
+            y = x       
+        ecken = len(self.tasks)
+        winkel = math.pi * 2 / ecken
+        radius = (ecken * 150) / (2 * math.pi) 
+        for t in range(len(self.tasks)):
+            y += radius * 1.5 + math.cos(winkel * t) * radius           
+        y += 100
         return x,y
 
     def draw_tasks(self):

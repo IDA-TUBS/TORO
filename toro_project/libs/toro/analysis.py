@@ -1,17 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- 
-""" Toro
-| Copyright (C) 2019 Innovationsgesellschaft Technische Universit�t Braunschweig mbH (iTUBS)
-| All rights reserved.
-| See LICENSE file for copyright and license details.
 
-:Authors:
-         - Leonie Koehler
-         - Nikolas Brendes
-         - Simon Bagschik
-
-Description
------------
+"""
 Calculation of an upper bound on the end-to-end latency of a cause-effect chain. 
 The analysis relies on Becker et al. 2017 + 2018.
 """

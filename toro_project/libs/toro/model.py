@@ -25,9 +25,14 @@ class extTask(model.Task):
         It includes BET and LET semantics.
         It provides a function to instantiate jobs.
     """
-    def __init__(self, name, release_offset, let_semantics, bet_semantics, let, *args, **kwargs):
-        model.Task.__init__(self, name, *args, **kwargs)
-        self.release_offset = release_offset
+    def __init__(self, name, release_offset, bcet, wcet,
+                 scheduling_parameter,   
+                 let_semantics, bet_semantics, let):
+        model.Task.__init__(self, name) 
+        self.release_offset = release_offset        
+        self.bcet = bcet
+        self.wcet = wcet
+        self.scheduling_parameter = scheduling_parameter
         self.let_semantics = let_semantics
         self.bet_semantics = bet_semantics
         self.let = let

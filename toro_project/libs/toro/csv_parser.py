@@ -23,7 +23,7 @@ from toro import model as toro_model
 
 class parse_csv(object):
     """
-    
+    This class contains functions to parse the system specification.
     """
     tasks = list()
     chains = list()
@@ -37,7 +37,7 @@ class parse_csv(object):
         Parsing the files resources.csv, tasks.csv, chains.csv.
         """
         # type of system determined by the user query
-        assert (case == 1 or case == 2 or case == 3)
+        assert (case == 1 or case == 2 or case == 3 or case == 4)
         self.case = case
         
         # parse resources.csv
@@ -90,7 +90,7 @@ class parse_csv(object):
                 t = toro_model.extTask(
                     name = csv_task["name"],
                     release_offset = csv_task["offset"],
-                    bcet = None,
+                    bcet = 0,
                     wcet = csv_task["wcet"],
                     scheduling_parameter= csv_task["priority"],
                     let_semantics = False,
@@ -105,11 +105,12 @@ class parse_csv(object):
                 elif self.case == 2:
                     t.bcet = 0
                     assert t.release_offset == 0, "Task offsets contradicts initial assumptions."
+                    
             elif self.case ==3: 
                 t = toro_model.extTask(
                     name = csv_task["name"],
                     release_offset = csv_task["offset"],                    
-                    bcet = None,
+                    bcet = 0,
                     wcet = csv_task["wcet"],
                     scheduling_parameter= csv_task["priority"],
                     let_semantics = True,
@@ -117,7 +118,41 @@ class parse_csv(object):
                     let = csv_task["let"]
                     )
                 t.in_event_model = model.PJdEventModel(P=csv_task["period"]) 
-                t.bcrt = csv_task["bcrt"]               
+                t.bcrt = csv_task["bcrt"]
+                
+            if self.case == 4:
+                if 'BET' in csv_task["name"] or 'bet' in csv_task["name"]: 
+                    t = toro_model.extTask(
+                        name = csv_task["name"],
+                        release_offset = csv_task["offset"],
+                        bcet = 0,
+                        wcet = csv_task["wcet"],
+                        scheduling_parameter= csv_task["priority"],
+                        let_semantics = False,
+                        bet_semantics = True,
+                        let = None              
+                        )
+                    t.in_event_model = model.PJdEventModel(P=csv_task["period"])
+                    t.bcet = 0
+                    assert t.release_offset == 0, "Task offsets contradicts initial assumptions."  
+                                          
+                elif 'LET' in csv_task["name"] or 'let' in csv_task["name"]:                    
+                    t = toro_model.extTask(
+                        name = csv_task["name"],
+                        release_offset = csv_task["offset"],                    
+                        bcet = 0,
+                        wcet = 0,
+                        scheduling_parameter= csv_task["priority"],
+                        let_semantics = True,
+                        bet_semantics = False,
+                        let = csv_task["let"]
+                        )
+                    t.in_event_model = model.PJdEventModel(P=csv_task["period"]) 
+                    t.bcrt = csv_task["bcrt"]    
+                    
+                else:
+                    assert False, "Tasks not correctly named."                                 
+                                        
             else:
                 assert False
             
@@ -176,7 +211,7 @@ class parse_csv(object):
                 r = model.Resource(csv_resc["name"], csv_resc["scheduler"].lower())
                 rescs.append(r)                
             return rescs   
-        elif self.case == 2:
+        elif self.case == 2 or self.case == 4:
             for csv_resc in csv_rescs:
                 scheduler = None
                 if csv_resc["scheduler"].lower() == "sppscheduler":
@@ -225,8 +260,8 @@ class parse_csv(object):
                 tasks = list()
                 for i in range(2,len(line)): # modified to start from 2
                     tasks.append(line[i])
-                if str(line[1]) == 'n/a':
-                    e2e_deadline = str(line[1])
+                if str(line[1]) == 'n/a' or str(line[1]) == 'unknown':
+                    e2e_deadline = 'n/a'
                 elif str(line[1]).isdigit():
                     e2e_deadline = int(line[1])   
                 else:

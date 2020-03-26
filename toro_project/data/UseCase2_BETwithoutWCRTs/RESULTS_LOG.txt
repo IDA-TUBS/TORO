@@ -1,0 +1,117 @@
+Toro, Analysis TOol to evaluate the RObustness of cause-effect chains 
+Copyright (C) 2019 iTUBS Germany 
+All rights reserved. 
+See LICENSE file for copyright and license details. 
+     _____
+    /__   \___  _ __ ___  
+      / /\/ _ \| '__/ _ \  
+     / / | (_) | | | (_) | 
+     \/   \___/|_|  \___/  
+
+ 
+==================================================================
+DETAILED RESULTS FOR CHAIN "BETchain1" 
+==================================================================
+1) DEFINITION OF THE ANALYZED CAUSE-EFFECT CHAIN 
+------------------------------------------------------------------
+ CHAIN: BETchain1
+   sequence:  -> BET_T1 -> BET_T3 -> BET_T2
+==================================================================
+2) SUMMARY: MAXIMUM END-TO-END LATENCY 
+------------------------------------------------------------------
+max end-to-end latency: 38
+==================================================================
+3) DETAILS OF THE LATENCY ANALYSIS: INDIVIDUAL MAX PATH LATENCIES 
+------------------------------------------------------------------
+Maximum end-to-end latency for each path 
+ -> BET_T1,1 -> BET_T3,1 -> BET_T2,1  |  max: 13
+ -> BET_T1,1 -> BET_T3,1 -> BET_T2,2  |  max: 23
+ -> BET_T1,1 -> BET_T3,1 -> BET_T2,3  |  max: 33
+ -> BET_T1,3 -> BET_T3,2 -> BET_T2,3  |  max: 23
+ -> BET_T1,3 -> BET_T3,2 -> BET_T2,4  |  max: 33
+ -> BET_T1,4 -> BET_T3,2 -> BET_T2,3  |  max: 18
+ -> BET_T1,4 -> BET_T3,2 -> BET_T2,4  |  max: 28
+ -> BET_T1,6 -> BET_T3,3 -> BET_T2,4  |  max: 18
+ -> BET_T1,6 -> BET_T3,3 -> BET_T2,5  |  max: 28
+ -> BET_T1,6 -> BET_T3,3 -> BET_T2,6  |  max: 38
+==================================================================
+4) SUMMARY: ROBUSTNESS MARGINS W.R.T. THE ISOLATED CAUSE-EFFECT CHAIN 
+------------------------------------------------------------------
+RM of task "BET_T1" for the isolated chain BETchain1 is 9 (e2e-deadline satisfied).
+RM of task "BET_T1" for the isolated chain BETchain1 is 4 (e2e-deadline & task deadlines satisfied).
+RM of task "BET_T3" for the isolated chain BETchain1 is 3 (e2e-deadline satisfied).
+RM of task "BET_T3" for the isolated chain BETchain1 is 3 (e2e-deadline & task deadlines satisfied).
+RM of task "BET_T2" for the isolated chain BETchain1 is 12 (e2e-deadline satisfied).
+RM of task "BET_T2" for the isolated chain BETchain1 is 3 (e2e-deadline & task deadlines satisfied).
+==================================================================
+5) DETAILS OF THE ROBUSTNESS ANALYSIS: ROB. MARGINS FOR JOB PAIRS 
+------------------------------------------------------------------
+ -> BET_T1,1 -> BET_T3,2  |  RM: 9 (e2e-deadline satisfied).
+ -> BET_T1,1 -> BET_T3,2  |  RM: 4 (e2e-deadline & task deadlines satisfied).
+ -> BET_T1,3 -> BET_T3,3  |  RM: 14 (e2e-deadline satisfied).
+ -> BET_T1,3 -> BET_T3,3  |  RM: 4 (e2e-deadline & task deadlines satisfied).
+ -> BET_T1,4 -> BET_T3,3  |  RM: 9 (e2e-deadline satisfied).
+ -> BET_T1,4 -> BET_T3,3  |  RM: 4 (e2e-deadline & task deadlines satisfied).
+ -> BET_T1,6 -> BET_T3,4  |  RM: 14 (e2e-deadline satisfied).
+ -> BET_T1,6 -> BET_T3,4  |  RM: 4 (e2e-deadline & task deadlines satisfied).
+ -> BET_T3,1 -> BET_T2,4  |  RM: 8 (e2e-deadline satisfied).
+ -> BET_T3,1 -> BET_T2,4  |  RM: 8 (e2e-deadline & task deadlines satisfied).
+ -> BET_T3,2 -> BET_T2,5  |  RM: 3 (e2e-deadline satisfied).
+ -> BET_T3,2 -> BET_T2,5  |  RM: 3 (e2e-deadline & task deadlines satisfied).
+ -> BET_T3,3 -> BET_T2,7  |  RM: 8 (e2e-deadline satisfied).
+ -> BET_T3,3 -> BET_T2,7  |  RM: 8 (e2e-deadline & task deadlines satisfied).
+The robustness margin for the tail task results from the constraint 
+imposed by the task deadline and the end-to-end deadline of the chain. 
+
+ 
+ 
+
+==================================================================
+DETAILED RESULTS FOR CHAIN "BETchain2" 
+==================================================================
+1) DEFINITION OF THE ANALYZED CAUSE-EFFECT CHAIN 
+------------------------------------------------------------------
+ CHAIN: BETchain2
+   sequence:  -> BET_T1 -> BET_T4
+==================================================================
+2) SUMMARY: MAXIMUM END-TO-END LATENCY 
+------------------------------------------------------------------
+max end-to-end latency: 14
+==================================================================
+3) DETAILS OF THE LATENCY ANALYSIS: INDIVIDUAL MAX PATH LATENCIES 
+------------------------------------------------------------------
+Maximum end-to-end latency for each path 
+ -> BET_T1,1 -> BET_T4,1  |  max: 9
+ -> BET_T1,1 -> BET_T4,2  |  max: 14
+==================================================================
+4) SUMMARY: ROBUSTNESS MARGINS W.R.T. THE ISOLATED CAUSE-EFFECT CHAIN 
+------------------------------------------------------------------
+RM of task "BET_T1" for the isolated chain BETchain2 is 4 (e2e-deadline satisfied).
+RM of task "BET_T1" for the isolated chain BETchain2 is 4 (e2e-deadline & task deadlines satisfied).
+RM of task "BET_T4" for the isolated chain BETchain2 is 0 (e2e-deadline satisfied).
+RM of task "BET_T4" for the isolated chain BETchain2 is 0 (e2e-deadline & task deadlines satisfied).
+==================================================================
+5) DETAILS OF THE ROBUSTNESS ANALYSIS: ROB. MARGINS FOR JOB PAIRS 
+------------------------------------------------------------------
+ -> BET_T1,1 -> BET_T4,3  |  RM: 4 (e2e-deadline satisfied).
+ -> BET_T1,1 -> BET_T4,3  |  RM: 4 (e2e-deadline & task deadlines satisfied).
+The robustness margin for the tail task results from the constraint 
+imposed by the task deadline and the end-to-end deadline of the chain. 
+
+ 
+ 
+==================================================================
+ROBUSTNESS MARGINS W.R.T. TO THE SET OF CAUSE-EFFECT CHAINS 
+------------------------------------------------------------------
+	 Robustness margin of task "BET_T1" in  is 4 (e2e-deadline satisfied). 
+	 Robustness margin of task "BET_T1" in  is 4 (e2e-deadline & task deadlines satisfied). 
+	 Robustness margin of task "BET_T3" in  is 3 (e2e-deadline satisfied). 
+	 Robustness margin of task "BET_T3" in  is 3 (e2e-deadline & task deadlines satisfied). 
+	 Robustness margin of task "BET_T5" in  is inf (e2e-deadline satisfied). 
+	 Robustness margin of task "BET_T5" in  is inf (e2e-deadline & task deadlines satisfied). 
+	 Robustness margin of task "BET_T2" in  is 12 (e2e-deadline satisfied). 
+	 Robustness margin of task "BET_T2" in  is 3 (e2e-deadline & task deadlines satisfied). 
+	 Robustness margin of task "BET_T4" in  is 0 (e2e-deadline satisfied). 
+	 Robustness margin of task "BET_T4" in  is 0 (e2e-deadline & task deadlines satisfied). 
+	 Robustness margin of task "BET_T6" in  is inf (e2e-deadline satisfied). 
+	 Robustness margin of task "BET_T6" in  is inf (e2e-deadline & task deadlines satisfied). 

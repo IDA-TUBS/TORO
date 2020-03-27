@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.abspath('../toro_project/libs'))
 
 
+
 # -- Project information -----------------------------------------------------
 
 project = 'TORO'
@@ -41,6 +42,11 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
+
+autodoc_default_flags = ['members', 
+                         'undoc-members', 
+                         'private-members', 
+                         'show-inheritance']
 
 # -- Options for HTML output -------------------------------------------------
 

@@ -261,7 +261,7 @@ class parse_csv(object):
                 for i in range(2,len(line)): # modified to start from 2
                     tasks.append(line[i])
                 if str(line[1]) == 'n/a' or str(line[1]) == 'unknown':
-                    e2e_deadline = 'n/a'
+                    e2e_deadline = None
                 elif str(line[1]).isdigit():
                     e2e_deadline = int(line[1])   
                 else:

@@ -28,7 +28,8 @@ class SystemProperties(object):
         self.clks_sync = False
         self.pp_let = False   
         self.pp_bet = False 
-        self.pp_mixed = False
+        self.pp_mixed = False 
+        self.periodic_tasks = False         
         self.implicit_deadlines = False 
         self.wcrt_known = False
         self.wcrt_computable = False
@@ -85,6 +86,21 @@ class SystemProperties(object):
         else:
             print("ERROR: invalid input")          
                       
+
+    def _activation_pattern(self):
+        """
+        This functions checks the activation pattern. 
+        """
+        ans = input("Are all tasks periodically activated? [y/n] \n")
+        if ans == "y" or ans == "yes":
+            self.periodic_tasks = True 
+        elif ans == "n" or ans == "no":                        
+            print("ERROR: The system is not supported.")
+            print("Toro terminates.")
+            quit()
+        else:
+            print("ERROR: invalid input")   
+
                                     
     def _task_deadlines(self):
         """
@@ -164,15 +180,34 @@ class SystemProperties(object):
 #         print(self.pp_mixed)
 #         print(self.wcrt_known)
 #         print(self.wcrt_computable)
-        if (self.clks_sync == True and self.pp_bet == True and self.wcrt_known == True): 
+
+        # Periodic BET tasks with known WCRT
+        if (self.clks_sync == True and 
+            self.pp_bet == True and 
+            self.periodic_tasks == True and 
+            self.implicit_deadlines == True and 
+            self.wcrt_known == True): 
             self.case = 1
-        elif (self.clks_sync == True and self.pp_bet == True and self.wcrt_known == False 
-              and self.wcrt_computable == True):
+        # Periodic BET tasks with unknown WCRT            
+        elif (self.clks_sync == True and
+              self.pp_bet == True and 
+              self.periodic_tasks == True and 
+              self.implicit_deadlines == True and 
+              self.wcrt_known == False and 
+              self.wcrt_computable == True):
             self.case = 2            
-        elif (self.clks_sync == True and self.pp_let == True and self.implicit_deadlines == True):
+        # LET tasks
+        elif (self.clks_sync == True and
+              self.pp_let == True and 
+              self.implicit_deadlines == True):
             self.case = 3
-        elif (self.clks_sync == True and self.pp_mixed == True and self.wcrt_known == False 
-              and self.wcrt_computable == True):
+        # Mixed programming paradigms but periodic tasks
+        elif (self.clks_sync == True and 
+              self.pp_mixed == True and 
+              self.periodic_tasks == True and 
+              self.implicit_deadlines == True and 
+              self.wcrt_known == False and 
+              self.wcrt_computable == True):
             self.case = 4 
         else:
             assert False, "Combination of system properties is not supported."           

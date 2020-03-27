@@ -13,4 +13,4 @@ Description
 -----------
 """
 __author__ = ["Leonie Koehler", "Nikolas Brendes", "Simon Bagschik",]
-__all__ = ["analysis", "model", "plot", "csv_parser"]
+__all__ = ["analysis", "model", "plot", "csv_parser", "io", "check"]

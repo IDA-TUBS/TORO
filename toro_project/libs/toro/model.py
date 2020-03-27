@@ -37,7 +37,7 @@ class extTask(model.Task):
         self.bet_semantics = bet_semantics
         self.let = let
  
-    def instantiate_job(self, job_number, semantics, wcrt, bcrt):
+    def instantiate_job(self, job_number, wcrt, bcrt):
         """This function instantiates a job with ID job_number."""
         job = Job(name=self.name, 
                   task_name = self.name,
@@ -46,16 +46,17 @@ class extTask(model.Task):
                   wcet=self.wcet, 
                   let=self.let, 
                   job_number=job_number, 
-                  knowledge_base=semantics, 
                   wcrt=wcrt,
-                  bcrt=bcrt)
+                  bcrt=bcrt,
+                  let_semantics = self.let_semantics,
+                  bet_semantics = self.bet_semantics)
         return job
 
 
 class Job(object):
     """ Parameterized job model."""
     def __init__(self, name, task_name, period, offset=None, wcet=None, let=None, bcrt=None,
-                 job_number=None, knowledge_base=None, wcrt=None):
+                 job_number=None, wcrt=None, let_semantics=None, bet_semantics=None):
         self.task_name = task_name
         self.period = period
         self.offset = offset
@@ -72,38 +73,30 @@ class Job(object):
         self.robustness_margin = None
         self.robustness_margin_corrected = None        
         self.successor_jobs = list() # stores successor jobs for that follows() returns True
-        self.set_RI_DI(knowledge_base)
+        self.let_semantics = let_semantics
+        self.bet_semantics = bet_semantics        
+        self.set_RI_DI()
 
-    def set_RI_DI(self, knowledge_base):
+    def set_RI_DI(self):
         """
         The function computes minimum and maximum read and data intervals of a job.
         """
-        if(knowledge_base == 'BET_with_known_WCRTs'):
-            if self.wcet != None:
-                # case 2
-                self.Rmin = self.offset + (self.job_number -1 ) * self.period
-                self.Rmax = self.Rmin + self.wcrt - self.wcet
-                self.Dmin = self.Rmin + self.wcet
-                self.Dmax = self.offset + self.job_number * self.period + self.wcrt
-            else:
-                # case 1
-                self.Rmin = self.offset + (self.job_number -1 ) * self.period
-                self.Rmax = self.job_number * self.period - self.bcrt
-                self.Dmin = self.Rmin + self.bcrt
-                self.Dmax = self.offset + self.job_number * self.period + self.wcrt                
-                
-        elif(knowledge_base == 'LET'):
+        # job belongs to BET task
+        if self.let == None or self.let == 0: 
+            #print('Set R/D intervals for BET job.')
+            assert self.wcet != None or self.wcet != 0, 'Unset WCET values for task! '+ self.task_name
+            assert self.let == None or self.let == 0, 'Contradictory task parameters!'
+            self.Rmin = self.offset + (self.job_number -1 ) * self.period
+            self.Rmax = self.job_number * self.period - self.bcrt
+            self.Dmin = self.Rmin + self.bcrt
+            self.Dmax = self.offset + self.job_number * self.period + self.wcrt  
+        else:
+            #print('Set R/D intervals for LET job.')         
             self.Rmin = self.offset + (self.job_number -1 ) * self.period
             self.Rmax = self.Rmin
-            # changed to less tight bound because of RM computation
-            self.Dmin = self.Rmin 
-            #self.Dmin = self.Rmin + self.let
+            # changed to less tight bound because of RM computation: self.Dmin = self.Rmin 
+            self.Dmin = self.Rmin + self.let
             self.Dmax = self.offset + self.job_number * self.period + self.let
-
-        else:
-            print("No valid knowledge base. Valid: BET_with_known_WCRTs,"
-                  "LET")
-            raise SystemExit(1)
         
     def iterate(self, current_path, path_matrix, size):
         """Recursive function to extract possible paths and store in path_matrix."""

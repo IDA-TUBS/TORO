@@ -27,7 +27,7 @@ import csv
 #from __builtin__ import True
 sys.path.append(sys.path[0] + "/libs/")
  
-from pycpa import analysis
+import pycpa
 from toro import io
 from toro import check
 from toro import plot as draw_chain
@@ -78,7 +78,7 @@ def perform_analysis(args, case, _dir):
         task_results = dict()
         for r in system.resources:
             for t in r.tasks:
-                task_results[t] = analysis.TaskResult()
+                task_results[t] = pycpa.analysis.TaskResult()
                 t.analysis_results = task_results[t]
         # override wcrt in task_results
         for t in task_results.keys():
@@ -88,7 +88,7 @@ def perform_analysis(args, case, _dir):
     
     elif case == 2:
         try:
-            task_results = analysis.analyze_system(system)
+            task_results = pycpa.analysis.analyze_system(system)
             for r in system.resources:
                 for t in r.tasks:            
                     t.wcrt = task_results[t].wcrt
@@ -101,7 +101,7 @@ def perform_analysis(args, case, _dir):
         task_results = dict()
         for r in system.resources:
             for t in r.tasks:
-                task_results[t] = analysis.TaskResult()
+                task_results[t] = pycpa.analysis.TaskResult()
                 t.analysis_results = task_results[t]
         for t in task_results.keys():  
             task_results[t].bcrt = t.bcrt                
@@ -109,7 +109,7 @@ def perform_analysis(args, case, _dir):
         
     elif case == 4: 
         try:
-            task_results = analysis.analyze_system(system)
+            task_results = pycpa.analysis.analyze_system(system)
             # override wcrt in task_results for LET tasks
             for t in task_results.keys():
                 if 'LET' in t.name or 'let' in t.name: 
@@ -135,32 +135,61 @@ def perform_analysis(args, case, _dir):
             writer.writerow([t.name, task_results[t].wcrt])
             print(t.name + ': WCRT=' + str(task_results[t].wcrt) + ', BCRT = ' + str(task_results[t].bcrt))   
 
-    if args.wcrt == True: 
-        io.PrintOuts.newline()
-        io.PrintOuts.doubleline()
-        print("Done. Toro quits.")           
+    if args.wcrt == True and args.lat == False:    
+        return     
 
  
-#     # Analysis    
-#     io.PrintOuts.newline()
-#     io.PrintOuts.doubleline()
-#     print("Calculating maximum end-to-end latencies and robustness margins of cause-effect chains.")    
-#     io.PrintOuts.line()   
+    # Analysis    
+    io.PrintOuts.newline()
+    io.PrintOuts.doubleline()
+    if args.lat == True:  
+        print("Calculating maximum end-to-end latencies of cause-effect chains.")
+    else:
+        print("Calculating maximum end-to-end latencies and robustness margins of cause-effect chains.")        
+    io.PrintOuts.line()   
+    chain_results_dict = dict()
+    for chain in read_data.chains:    
+        print("Analyzing cause-effect chain: " + chain.name) 
+        print(chain.tasks)
+        try:
+            chain_results = toro_analysis.ChainProperties(args, chain, semantics, task_results, case)
+        except:
+            assert False, ("ERROR: calc_latencies_robustness() failed!")
+            return        
+        chain_results_dict[chain.name] = chain_results
+        chain.results = chain_results #legacy
+        
+    # Analysis: latency results.    
+    io.PrintOuts.line() 
+    for chain in read_data.chains:
+        print("The maximum end-to-end latency of chain \"" + chain.name + "\" is " 
+              + str(chain_results_dict[chain.name].max_e2e_lat) + ".")
+    io.PrintOuts.line() 
+        
+    with open(_dir+'/lat_results.csv', 'w', newline='') as file:
+        writer = csv.writer(file, delimiter=';') 
+        writer.writerow(['chain_name', 'lat'])
+        for chain in read_data.chains:    
+            writer.writerow([chain.name, chain_results_dict[chain.name].max_e2e_lat])
+        
+        
+    # Analysis: robustness results.         
+    if args.lat == False: 
+        io.PrintOuts.line()        
+        for task in read_data.tasks:
+            print("\t Robustness margin of task \"" + task.name + "\" in " + \
+                    " is " + \
+                    str(chain_results_dict['RMs_system'][task.name]) + \
+                    " (e2e-deadline satisfied).")
+            print("\t Robustness margin of task \"" + task.name + "\" in " + \
+                    " is " + \
+                    str(chain_results_dict['RMs_corrected_system'][task.name]) + \
+                    " (e2e-deadline & task deadlines satisfied).")       
+        print("---------------------------------------------------------------------------------------")        
+        print("Detailed information can be found in the RESULTS_LOG.txt file.")    
 
 
 
-#     chain_results_dict = dict()
-#     for chain in read_data.chains:    
-#         print("Analyzing cause-effect chain: " + chain.name)
-#         try:
-#             chain_results = toro_analysis.calc_latencies_robustness(chain, semantics, task_results)
-#         except:
-#             assert False, ("ERROR: calc_latencies_robustness() failed!")
-#             return
-#         print("---------------------------------------------------------------------------------------")         
-#         chain_results_dict[chain.name] = chain_results
-#         chain.results = chain_results #legacy
-#  
 #     toro_analysis.compute_rm_min_all_chains(chain_results_dict, read_data.tasks, read_data.chains) 
 #             
 #     print("\n \n")
@@ -178,23 +207,7 @@ def perform_analysis(args, case, _dir):
 #     print("\n")
 #     print("=======================================================================================")
 #     print("Results.")    
-#     print("---------------------------------------------------------------------------------------")
-#     print("MAXIMUM END-TO-END LATENCIES:")
-#     for chain in read_data.chains:
-#         print("\t Max. end-to-end latency of chain \"" + chain.name + "\" is " + str(chain_results_dict[chain.name].max_data_age) + ".")
-#     print("---------------------------------------------------------------------------------------")
-#     print("ROBUSTNESS MARGINS W.R.T. THE SET OF CAUSE-EFFECT CHAINS:")
-#     for task in read_data.tasks:
-#         print("\t Robustness margin of task \"" + task.name + "\" in " + \
-#                 " is " + \
-#                 str(chain_results_dict['RMs_system'][task.name]) + \
-#                 " (e2e-deadline satisfied).")
-#         print("\t Robustness margin of task \"" + task.name + "\" in " + \
-#                 " is " + \
-#                 str(chain_results_dict['RMs_corrected_system'][task.name]) + \
-#                 " (e2e-deadline & task deadlines satisfied).")       
-#     print("---------------------------------------------------------------------------------------")        
-#     print("Detailed information can be found in the RESULTS_LOG.txt file.")    
+
 #      
 #      
 #     log = ""
@@ -215,9 +228,9 @@ def perform_analysis(args, case, _dir):
 #                 " (e2e-deadline & task deadlines satisfied). \n")                     
 #     with open(_dir + "/RESULTS_LOG.txt", "w") as log_file:
 #         log_file.write(__banner() + log + chain_log[1:])    
-#     print("\n")
-#     print("=======================================================================================")
-#     print("Done. Toro quits.")   
+
+
+
 
 
 
@@ -233,7 +246,11 @@ if __name__ == "__main__":
     toro_parser.add_argument('--wcrt', 
                         dest='wcrt', 
                         action='store_true',
-                        help='computes only upper bounds on latencies')                                         
+                        help='computes only upper bounds on task response times')     
+    toro_parser.add_argument('--lat', 
+                        dest='lat', 
+                        action='store_true',
+                        help='computes only upper bounds on latencies')                                             
     toro_args = toro_parser.parse_args()    
     
     print(__banner())   
@@ -245,7 +262,8 @@ if __name__ == "__main__":
     check_properties = check.SystemProperties()
     check_properties._start(toro_args.path)
     check_properties._clock_sync() 
-    check_properties._programming_paradigm()
+    check_properties._programming_paradigm() 
+    check_properties._activation_pattern()
     check_properties._task_deadlines()
     if check_properties.pp_bet == True or check_properties.pp_mixed == True: 
         check_properties._wcrt_knowledge()
@@ -256,3 +274,8 @@ if __name__ == "__main__":
    
     for d in dirs:
         perform_analysis(toro_args, check_properties.case, d)
+
+
+    io.PrintOuts.newline()
+    io.PrintOuts.doubleline()
+    print("Done. Toro quits.")   

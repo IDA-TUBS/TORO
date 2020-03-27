@@ -1,4 +1,8 @@
 Module: toro.analysis
 ================================
-.. automodule:: toro.analysis
-    :members:
+.. autoclass:: toro.analysis.ChainProperties
+
+	
+
+
+	

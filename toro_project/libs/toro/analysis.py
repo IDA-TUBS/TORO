@@ -18,21 +18,23 @@ margins for a given cause-effect chain.
 The latency analysis relies on Becker et al. 2017 + 2018.
 """
 
+from __future__ import division
 from toro import plot
 import copy
+import math
+
 
 class ChainProperties(object):
     """
     This class contains function to compute the maximum end-to-end latency and the 
     robustness margins for a given cause-effect chain.
     """
-    def __init__(self, args, chain, semantics, results, case):
+    def __init__(self, args, chain, results, case):
         """ 
         If the class 'ChainProperties' is initialized, it will compute the
         maximum end-to-end latency and the robustness margins for 'chain'. 
         """
         self.chain = chain
-        self.semantics = semantics
         self.job_matrix = list()
         self.log_robustness_margins = dict()
         #self.log_max_e2e_lat = dict()
@@ -56,21 +58,23 @@ class ChainProperties(object):
              
         # 3) determine possible paths & calculate maximum data age
         self.path_matrix = self.__determine_paths(self.job_matrix)
-        self.max_e2e_lat = self.__determine_max_e2e_lat(self.path_matrix, case) 
+        self.max_e2e_lat = self.__determine_max_e2e_lat(self.path_matrix) 
                
         assert self.max_e2e_lat != None 
         if chain.e2e_deadline != None:
             assert self.max_e2e_lat <= chain.e2e_deadline, "The max. latency violates the specified e2e-deadline!"
 
         # 4) calculate robustness margins
-        if args.lat == False: 
-            pass
-#             self.task_robustness_margins_dict = dict()
-#             self.task_robustness_margins_corrected_dict = dict()        
-#             for task in chain.tasks:
-#                 self.task_robustness_margins_dict[task.name] = None
-#                 self.task_robustness_margins_corrected_dict[task.name] = None            
-#             self.__calc_robustness_margins(self.job_matrix, chain, results)
+        if args.lat == False:
+            if (case == 1 or case == 2 or case == 3): 
+                self.task_robustness_margins_dict = dict()
+                self.task_delta_let_dict = dict()      
+                for task in chain.tasks:
+                    self.task_robustness_margins_dict[task.name] = None
+                    self.task_delta_let_dict[task.name] = None        
+                self.__calc_robustness_margins(self.job_matrix, chain, results, case)
+            else:
+                print('WARNING: The robustness analysis does not support this kind of system model.')
 
 
     def __calc_hyperperiod(self, chain):
@@ -130,8 +134,8 @@ class ChainProperties(object):
         # assign successor jobs to jobs in job_matrix
         for i in range(len(job_matrix) - 1):  # iterate over rows in matrix
             for k in range(len(job_matrix[i])):  # iterate over columns in row
-                # determine starting job of successor, see Eq. 2 of Becker et al. [2]
-                l = int(job_matrix[i][k].Dmin / job_matrix[i + 1][0].period)
+                # determine starting job of successor, see Eq. 2 of Becker et al. 2016 (adapted for offsets)
+                l = math.ceil((job_matrix[i][k].Dmin - job_matrix[i+1][0].offset) / job_matrix[i + 1][0].period)
                 while (l < len(job_matrix[i + 1])):
                     if (self.__follows(job_matrix[i][k], job_matrix[i + 1][l])):
                         job_matrix[i][k].successor_jobs.append(job_matrix[i + 1][l])
@@ -144,158 +148,181 @@ class ChainProperties(object):
 
 
     def __follows(self, prod_job, cons_job):
-        """Check reachability between jobs using Eq. 1 of Becker et al. [2] """
+        """Check reachability between jobs using Eq. 1 of Becker et al. 2016 """
         if ((cons_job.Rmax >= prod_job.Dmin) and (cons_job.Rmin < prod_job.Dmax)):
             return True
         else:
             return False
 
 
-    def __determine_max_e2e_lat(self, possible_paths, semantics):
-        """Function determines the path with the longest latency."""
-        if (len(possible_paths) == 0):
+    def __determine_max_e2e_lat(self, path_matrix):
+        """Function determines the path with the longest latency according to maximumd data age semantics,
+           i.e, release of header job to earliest data of tail job in the worst case.
+        """
+        if (len(path_matrix) == 0):
             assert False, "No reachable paths!"
             return 0
         else:
             data_ages = []
-            for k in range(len(possible_paths)): 
+            for k in range(len(path_matrix)): 
                 # first and last task is LET
-                if (possible_paths[k][0].let_semantics == True and 
-                    possible_paths[k][-1].let_semantics == True):
-                    data_ages.append(possible_paths[k][-1].Dmin - possible_paths[k][0].Rmin)
+                if (path_matrix[k][0].let_semantics == True and 
+                    path_matrix[k][-1].let_semantics == True): 
+                    # with LET the last chain deterministically produces a result already at Dmin
+                    data_ages.append(path_matrix[k][-1].Dmin - path_matrix[k][0].Rmin)
                 # first and last task is BET
-                elif (possible_paths[k][0].bet_semantics == True and 
-                      possible_paths[k][-1].bet_semantics == True): 
-                    data_ages.append((possible_paths[k][-1].Rmax + possible_paths[k][-1].wcrt)
-                                     - possible_paths[k][0].Rmin)                
+                elif (path_matrix[k][0].bet_semantics == True and 
+                      path_matrix[k][-1].bet_semantics == True): 
+                    data_ages.append(path_matrix[k][-1].Rmin + path_matrix[k][-1].wcrt - path_matrix[k][0].Rmin)                                   
                 # first task is LET and last task is BET
-                elif (possible_paths[k][0].let_semantics == True and 
-                      possible_paths[k][-1].bet_semantics == True):
-                    data_ages.append((possible_paths[k][-1].Rmax + possible_paths[k][-1].wcrt)
-                                     - possible_paths[k][0].Rmin)                      
+                elif (path_matrix[k][0].let_semantics == True and 
+                      path_matrix[k][-1].bet_semantics == True):
+                    data_ages.append(path_matrix[k][-1].Rmin + path_matrix[k][-1].wcrt - path_matrix[k][0].Rmin)                      
                 # first task is BET and last task is LET
-                elif (possible_paths[k][0].bet_semantics == True and 
-                      possible_paths[k][-1].let_semantics == True):             
-                    data_ages.append(possible_paths[k][-1].Dmin - possible_paths[k][0].Rmin)              
+                elif (path_matrix[k][0].bet_semantics == True and 
+                      path_matrix[k][-1].let_semantics == True):             
+                    data_ages.append(path_matrix[k][-1].Dmin - path_matrix[k][0].Rmin)              
                 else:
-                    raise
-            # legacy code        
-#             data_ages_1 = []
-#             for k in possible_paths:
-#                 s = ""
-#                 for i in k:
-#                     s += " -> " + i.name  
-#                 if (semantics == "LET"):
-#                     # release of header job to earliest data of tail job
-#                     data_age = k[-1].Rmax + k[-1].let - k[0].Rmin
-#                 if (semantics == "BET_with_known_WCRTs" or "Mixed_programming_paradigms_with_known_WCRTs"):
-#                     data_age = k[-1].Rmax + k[-1].wcrt - k[0].Rmin
-#                 data_ages_1.append(data_age)
-#                 #print(s + " | Max: " + str(data_age)) 
-#             for i in range(len(data_ages)):
-#                 assert data_ages[i] == data_ages_1[i]
-                
-            return max(data_ages)
+                    raise               
         
+        p =-1    
+        for k in self.path_matrix:
+            p += 1
+            s = ""
+            for i in k:
+                s += " -> " + i.name
+            print(s + "  |  max: " + str(data_ages[p]))
         
-        
+        return max(data_ages)
 
-    def __calc_robustness_margins(self, job_matrix, chain, results):
+
+    def __calc_robustness_margins(self, job_matrix, chain, results, case):
         """
         This function computes robustness margins that relate to an isolated cause-effect chain 
         (not the set of cause-effect chains).
         
-        Variables:
-        \tau_{k+1}(q+1): next_task_next_job_num: 
-        \tau_{k+1}(q): job_matrix[task][job].rm_job
-        => note that the job-index of job_matrix starts at 0 but job_number starts at 1
-        """        
+        job_matrix[task][job].rm_job:  \tau_{k+1}(q_{\tau_k(j_k)})  
+        => note that the job-index of job_matrix starts at 0 but job_number (as an attribute of Job) starts at 1
+        """
+        # tasks \tau_1^c ... \tau_{n-1}^c find q for each job in job matrix
         for task in range(len(job_matrix)-1):
-            i = 0
             for job in range(len(job_matrix[task])):
-                if len(job_matrix[task][job].successor_jobs) == 0:
-                    pass
+                q = None
+                # no successor jobs
+                if len(job_matrix[task][job].successor_jobs) == 0: 
+                    # earliest possible job that may read from job_matrix[task][job]
+                    l = math.ceil((job_matrix[task][job].Dmin - job_matrix[task + 1][0].offset)/ job_matrix[task + 1][0].period)
+                    while (True):
+                        # first job of (task+1) that could be reached if disturbances are present
+                        if (job_matrix[task + 1][l].Rmin > job_matrix[task][job].Dmax): 
+                            q = l+1 
+                            if q-1 < len(job_matrix[task+1]):
+                                job_matrix[task][job].rm_job = job_matrix[task+1][q-1] 
+                            else:
+                                copy_chain = copy.copy(self.chain)                   
+                                job_matrix[task][job].rm_job = self.chain.tasks[task+1].instantiate_job(job_number=q, \
+                                                                                                        wcrt=results[copy_chain.tasks[task+1]].wcrt, \
+                                                                                                        bcrt=results[copy_chain.tasks[task+1]].bcrt)
+                            break
+                        else:
+                            l += 1
+                # successor jobs
                 else:
-                    next_task_next_job_num = job_matrix[task][job].successor_jobs[-1].job_number + 1 # job_number, but index must be smaller by one
-    
-                    if next_task_next_job_num-1 < len(job_matrix[task+1]):
-                        job_matrix[task][job].robustness_margin = job_matrix[task+1][next_task_next_job_num-1].Rmin - job_matrix[task][job].Dmax
-                        job_matrix[task][job].rm_job = job_matrix[task+1][next_task_next_job_num-1]
-                        #print("Job: %s -> %s -  RM: %d" % (job_matrix[task][job].name,job_matrix[task+1][next_task_next_job_num-1].name , job_matrix[task][job].robustness_margin))
+                    # job number for q, but index in job matrix must be smaller by one
+                    q = job_matrix[task][job].successor_jobs[-1].job_number + 1 
+                    
+                    # check if \tau_{k+1}(q) is in job matrix
+                    if q-1 < len(job_matrix[task+1]):
+                        job_matrix[task][job].rm_job = job_matrix[task+1][q-1] 
                     else:
-                        i += 1
                         copy_chain = copy.copy(self.chain)                   
-                        job_matrix[task][job].robustness_margin = \
-                        job_matrix[task+1][next_task_next_job_num-2].Rmin - job_matrix[task][job].Dmax + self.chain.tasks[task+1].in_event_model.P * i 
-                        job_matrix[task][job].rm_job = self.chain.tasks[task+1].instantiate_job(job_number=next_task_next_job_num, \
-                                                                                                semantics=self.semantics, \
+                        job_matrix[task][job].rm_job = self.chain.tasks[task+1].instantiate_job(job_number=q, \
                                                                                                 wcrt=results[copy_chain.tasks[task+1]].wcrt, \
                                                                                                 bcrt=results[copy_chain.tasks[task+1]].bcrt)
-                        #print("Job: %s -> %s -  RM: %d" % (job_matrix[task][job].name, job_matrix[task][job].rm_job.name, job_matrix[task][job].robustness_margin))
+                # compute theta for each job_matrix[task][job]                             
+                job_matrix[task][job].theta = job_matrix[task][job].rm_job.Rmin -  job_matrix[task][job].Dmax 
+                #print("Job: %s -> %s -  RM: %d" % (job_matrix[task][job].name, job_matrix[task][job].rm_job.name, job_matrix[task][job].theta))
 
-        # pre-computing values
-        max_rm_dict = dict()
-        for task in self.chain.tasks:        
-            if self.semantics == 'BET_with_known_WCRTs':
-                max_rm_dict[task.name] = task.in_event_model.P - task.release_offset - task.wcrt 
-            elif self.semantics == 'LET':
-                max_rm_dict[task.name] = task.in_event_model.P - task.release_offset - task.let
-                #print max_rm_dict[task.name]
-            else:
-                assert False, 'Error: specified semantics are not supported.'
-               
-        for task in job_matrix:                
-            for job in task:
-                if job.robustness_margin != None:
-                    # corrected by task-deadline-constraint
-                    job.robustness_margin_corrected = min(job.robustness_margin, max_rm_dict[job.task_name]) 
-        
-      
-        
-        # setting the robustness margin for the task based on job robustness margins
-        i=-1
-        for task in job_matrix:          
+
+
+        # compute job-related robustness margin resp. delta let    
+        j=-1      
+        for task in job_matrix:  
+            j += 1    
+            for job in task: 
+                if task == job_matrix[-1]:
+                    if job_matrix[j][0].bet_semantics == True: 
+                        if chain.e2e_deadline == None or chain.e2e_deadline == 'n/a':
+                            job.robustness_margin = job_matrix[j][0].period \
+                                                    - job_matrix[j][0].offset \
+                                                    - job_matrix[j][0].wcrt
+                        elif isinstance(chain.e2e_deadline, int):
+                            job.robustness_margin = min(chain.e2e_deadline - self.max_e2e_lat,
+                                                        job_matrix[j][0].period 
+                                                        - job_matrix[j][0].offset 
+                                                        - job_matrix[j][0].wcrt)
+                        else:
+                            raise  
+                    elif job_matrix[j][0].let_semantics == True :   
+                        if chain.e2e_deadline == None or chain.e2e_deadline == 'n/a':
+                            job.delta_let = min(job_matrix[j][0].period 
+                                                - job_matrix[j][0].offset 
+                                                - job_matrix[j][0].let,
+                                                job_matrix[j][0].period)
+                        elif isinstance(chain.e2e_deadline, int):
+                            job.delta_let = min(chain.e2e_deadline - self.max_e2e_lat,
+                                                job_matrix[j][0].period
+                                                - job_matrix[j][0].offset 
+                                                - job_matrix[j][0].let,
+                                                job_matrix[j][0].period)                            
+                    else:  
+                        raise  
+                else:            
+                    if job_matrix[j][0].bet_semantics == True: 
+                        job.robustness_margin = min(job.theta, 
+                                                    job_matrix[j][0].period
+                                                    - job_matrix[j][0].offset 
+                                                    - job_matrix[j][0].wcrt) 
+                    elif job_matrix[j][0].let_semantics == True :   
+                        job.delta_let = min(job.theta, 
+                                            job_matrix[j][0].period 
+                                            - job_matrix[j][0].offset 
+                                            - job_matrix[j][0].let,
+                                            job_matrix[j][0].period)
+                    else:  
+                        raise                    
+                
+
+        # setting the robustness margin/delta let for the task based on job results
+        i=-1   
+        for task in job_matrix:
             i += 1
             self.task_robustness_margins_dict[chain.tasks[i].name] = float('inf')
-            for job in task:         
-                if job.robustness_margin != None:
+            self.task_delta_let_dict[chain.tasks[i].name] = float('inf')             
+            for job in task: 
+                if job_matrix[i][0].bet_semantics == True: 
                     if job.robustness_margin < self.task_robustness_margins_dict[chain.tasks[i].name]:
-                        self.task_robustness_margins_dict[chain.tasks[i].name] = job.robustness_margin
-            if not chain.tasks[i].name == chain.tasks[-1].name:
-                assert self.task_robustness_margins_dict[chain.tasks[-1].name] != float('inf'), \
-                'ERROR: unexpected value for robustness margin'
-            else:
-                assert self.task_robustness_margins_dict[chain.tasks[i].name] == float('inf'), \
-                'ERROR: unexpected value for robustness margin'             
-        if chain.e2e_deadline == None or chain.e2e_deadline == 'n/a':
-            self.task_robustness_margins_dict[chain.tasks[-1].name] = \
-            max_rm_dict[chain.tasks[-1].name]
-        elif isinstance(chain.e2e_deadline, int):
-            self.task_robustness_margins_dict[chain.tasks[-1].name] = chain.e2e_deadline - self.max_e2e_lat                  
-                   
-                
-        # setting the TASK-DEADLINE-CORRECTED robustness margin for the task based on job robustness margins
-        i=-1
-        for task in job_matrix:          
-            i += 1
-            self.task_robustness_margins_corrected_dict[chain.tasks[i].name] = float('inf')
-            for job in task:         
-                if job.robustness_margin_corrected != None:
-                    if job.robustness_margin_corrected < self.task_robustness_margins_corrected_dict[chain.tasks[i].name]:
-                        self.task_robustness_margins_corrected_dict[chain.tasks[i].name] = job.robustness_margin_corrected
-            if not chain.tasks[i].name == chain.tasks[-1].name:
-                assert self.task_robustness_margins_corrected_dict[chain.tasks[-1].name] != float('inf'), \
-                'ERROR: unexpected value for robustness margin'
-            else:
-                assert self.task_robustness_margins_corrected_dict[chain.tasks[i].name] == float('inf'), \
-                'ERROR: unexpected value for robustness margin'      
-        if chain.e2e_deadline == None or chain.e2e_deadline == 'n/a':
-            self.task_robustness_margins_corrected_dict[chain.tasks[-1].name] = \
-            max_rm_dict[chain.tasks[-1].name]
-        elif isinstance(chain.e2e_deadline, int):
-            self.task_robustness_margins_corrected_dict[chain.tasks[-1].name] = \
-            min(chain.e2e_deadline - self.max_e2e_lat, max_rm_dict[chain.tasks[-1].name])                         
-            
+                        self.task_robustness_margins_dict[chain.tasks[i].name] = job.robustness_margin  
+                                      
+                elif job_matrix[i][0].let_semantics == True :
+                    # delta let
+                    if job.delta_let < self.task_delta_let_dict[chain.tasks[i].name]:
+                        self.task_delta_let_dict[chain.tasks[i].name] = job.delta_let  
+                    # robustness margin    
+                    if job_matrix[i][0].wcrt == 'n/a' or job_matrix[i][0].wcrt == None:
+                        self.task_robustness_margins_dict[chain.tasks[i].name] = 'n/a since WCRT unknown'
+                    elif isinstance(job_matrix[i][0].wcrt, int):
+                        self.task_robustness_margins_dict[chain.tasks[i].name] = job_matrix[i][0].let - job_matrix[i][0].wcrt
+                    else: 
+                        raise
+                    
+                else:
+                    raise
+            assert self.task_robustness_margins_dict[chain.tasks[i].name] != float('inf')
+            if case == 3:
+                assert self.task_delta_let_dict[chain.tasks[i].name] != float('inf') 
+                                  
+
     
     def __gcd(self, a, b):
         """Helper function from pycpa.util, returns greatest common divisor using Euclid's Algorithm."""
@@ -308,12 +335,15 @@ class ChainProperties(object):
         """Helper function from pycpa.uti, returns lowest common multiple."""
         return a * b // self.__gcd(a, b)          
     
+
+
     
 def compute_rm_min_all_chains(chain_results_dict, tasks, chains):
     """
     This function takes the robustness margins computed for each chain task of the isolated chains
     and computes the respective minimum over the set of cause-effect chains in the system.
     """   
+
     rm_min_all_chains_dict = dict()
     for task in tasks:
         rm_min_all_chains_dict[task.name]=float('Inf')     
@@ -323,14 +353,23 @@ def compute_rm_min_all_chains(chain_results_dict, tasks, chains):
                 if rm_min_all_chains_dict[task.name] > chain_results_dict[chain.name].task_robustness_margins_dict[task.name]:
                     rm_min_all_chains_dict[task.name] = chain_results_dict[chain.name].task_robustness_margins_dict[task.name]
     chain_results_dict['RMs_system']= rm_min_all_chains_dict
-    
-    # corrected values (satisfaction of the task deadlines)
-    rm_min_all_chains_corrected_dict = dict()
+
+
+
+
+def compute_delta_let_all_chains(chain_results_dict, tasks, chains):
+    """
+    This function takes the Delta LETs computed for each chain task of the isolated chains
+    and computes the respective minimum over the set of cause-effect chains in the system.    
+    """
+    delta_let_all_chains_dict = dict()
     for task in tasks:
-        rm_min_all_chains_corrected_dict[task.name]=float('Inf')     
+        delta_let_all_chains_dict[task.name]=float('Inf')     
     for task in tasks:
         for chain in chains:
             if task in chain.tasks:
-                if rm_min_all_chains_corrected_dict[task.name] > chain_results_dict[chain.name].task_robustness_margins_corrected_dict[task.name]:
-                    rm_min_all_chains_corrected_dict[task.name] = chain_results_dict[chain.name].task_robustness_margins_corrected_dict[task.name]
-    chain_results_dict['RMs_corrected_system']= rm_min_all_chains_corrected_dict    
+                if delta_let_all_chains_dict[task.name] > chain_results_dict[chain.name].task_delta_let_dict[task.name]:
+                    delta_let_all_chains_dict[task.name] = chain_results_dict[chain.name].task_delta_let_dict[task.name]
+    chain_results_dict['Delta_LET_system']= delta_let_all_chains_dict    
+    
+   

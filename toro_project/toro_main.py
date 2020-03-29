@@ -104,7 +104,8 @@ def perform_analysis(args, case, _dir):
                 task_results[t] = pycpa.analysis.TaskResult()
                 t.analysis_results = task_results[t]
         for t in task_results.keys():  
-            task_results[t].bcrt = t.bcrt                
+            task_results[t].bcrt = t.bcrt   
+            task_results[t].wcrt = t.wcrt              
         semantics = "LET"        
         
     elif case == 4: 
@@ -148,23 +149,25 @@ def perform_analysis(args, case, _dir):
         print("Calculating maximum end-to-end latencies and robustness margins of cause-effect chains.")        
     io.PrintOuts.line()   
     chain_results_dict = dict()
-    for chain in read_data.chains:    
+    for chain in read_data.chains:  
         print("Analyzing cause-effect chain: " + chain.name) 
         print(chain.tasks)
         try:
-            chain_results = toro_analysis.ChainProperties(args, chain, semantics, task_results, case)
+            chain_results = toro_analysis.ChainProperties(args, chain, task_results, case)
         except:
             assert False, ("ERROR: calc_latencies_robustness() failed!")
             return        
         chain_results_dict[chain.name] = chain_results
-        chain.results = chain_results #legacy
+        io.PrintOuts.newline()
+    toro_analysis.compute_rm_min_all_chains(chain_results_dict, read_data.tasks, read_data.chains)   
+    toro_analysis.compute_delta_let_all_chains(chain_results_dict, read_data.tasks, read_data.chains)  
+        
         
     # Analysis: latency results.    
     io.PrintOuts.line() 
     for chain in read_data.chains:
         print("The maximum end-to-end latency of chain \"" + chain.name + "\" is " 
               + str(chain_results_dict[chain.name].max_e2e_lat) + ".")
-    io.PrintOuts.line() 
         
     with open(_dir+'/lat_results.csv', 'w', newline='') as file:
         writer = csv.writer(file, delimiter=';') 
@@ -176,64 +179,60 @@ def perform_analysis(args, case, _dir):
     # Analysis: robustness results.         
     if args.lat == False: 
         io.PrintOuts.line()        
-        for task in read_data.tasks:
-            print("\t Robustness margin of task \"" + task.name + "\" in " + \
-                    " is " + \
-                    str(chain_results_dict['RMs_system'][task.name]) + \
-                    " (e2e-deadline satisfied).")
-            print("\t Robustness margin of task \"" + task.name + "\" in " + \
-                    " is " + \
-                    str(chain_results_dict['RMs_corrected_system'][task.name]) + \
-                    " (e2e-deadline & task deadlines satisfied).")       
-        print("---------------------------------------------------------------------------------------")        
-        print("Detailed information can be found in the RESULTS_LOG.txt file.")    
+        for task in read_data.tasks: 
+            if case == 1 or case == 2:            
+                print("Robustness margin of task \"" + task.name + "\" in " + \
+                        " is " + str(chain_results_dict['RMs_system'][task.name]))     
+            elif case == 3: 
+                print("Robustness margin of task \"" + task.name + "\" in " + \
+                        " is " + str(chain_results_dict['RMs_system'][task.name]))                           
+            else:
+                raise
 
-
-
-#     toro_analysis.compute_rm_min_all_chains(chain_results_dict, read_data.tasks, read_data.chains) 
-#             
-#     print("\n \n")
-#     print("=======================================================================================")
+            if case == 3: 
+                print("Delta LET of task \"" + task.name + "\" in " + \
+                        " is " + str(chain_results_dict['Delta_LET_system'][task.name]))               
+            
+        io.PrintOuts.line()  
+      
+    with open(_dir+'/rm_results.csv', 'w', newline='') as file:
+        writer = csv.writer(file, delimiter=';') 
+        if case == 1 or case == 2:
+            writer.writerow(['task_name', 'rm'])
+            for task in read_data.tasks:     
+                writer.writerow([task.name, chain_results_dict['RMs_system'][task.name]])
+        elif case == 3:
+            writer.writerow(['task_name', 'rm','delta_let'])
+            for task in read_data.tasks:  
+                writer.writerow([task.name, 
+                                 chain_results_dict['RMs_system'][task.name],
+                                 chain_results_dict['Delta_LET_system'][task.name]])
+        else:
+            raise
+  
+#     io.PrintOuts.newline()
+#     io.PrintOuts.doubleline()
 #     print("Generating diagrams.")    
-#     print("---------------------------------------------------------------------------------------")          
-#     for chain in read_data.chains:        
-#         print("Generating interval graph for chain \"" + chain.name + "_intervals.svg\".")
-#         draw_chain.draw_read_data_intervals(chain_results_dict[chain.name], semantics=semantics, robustness_margin="none", dependency_polygon=True, max_data_age="last").save_file(os.path.join(_dir, chain.name + "_intervals.svg"))
-#         print("Generating reachability graph for chain \"" + chain.name + "_tree.svg\".")
-#         draw_chain.draw_dependency_graph(chain_results_dict[chain.name]).save_file(os.path.join(_dir, chain.name + "_tree.svg"))
-#         print("---------------------------------------------------------------------------------------")          
-#     print("Generating summarizing diagram \"results.svg\".")
-#     draw_chain.draw_results(chains = read_data.chains, tasks = read_data.tasks, chain_results_dict=chain_results_dict).save_file(os.path.join(_dir,"Results.svg"))
-#     print("\n")
-#     print("=======================================================================================")
-#     print("Results.")    
-
-#      
-#      
-#     log = ""
-#     chain_log = ""
-#     for chain in read_data.chains:
-#         chain_log += log_chain_results(chain_results_dict[chain.name], chain, os.path.join(_dir, chain.name + "_results.txt"), chain_results_dict) 
-#     chain_log += "==================================================================\n"
-#     chain_log += "ROBUSTNESS MARGINS W.R.T. TO THE SET OF CAUSE-EFFECT CHAINS \n"    
-#     chain_log += "------------------------------------------------------------------\n"           
-#     for task in read_data.tasks:
-#         chain_log += ("\t Robustness margin of task \"" + task.name + "\" in " + \
-#                 " is " + \
-#                 str(chain_results_dict['RMs_system'][task.name]) + \
-#                 " (e2e-deadline satisfied). \n")
-#         chain_log += ("\t Robustness margin of task \"" + task.name + "\" in " + \
-#                 " is " + \
-#                 str(chain_results_dict['RMs_corrected_system'][task.name]) + \
-#                 " (e2e-deadline & task deadlines satisfied). \n")                     
-#     with open(_dir + "/RESULTS_LOG.txt", "w") as log_file:
-#         log_file.write(__banner() + log + chain_log[1:])    
+#     io.PrintOuts.line()          
+#     for chain in read_data.chains:     
+#         pass   
+# #         print("Generating interval graph for chain \"" + chain.name + "_intervals.svg\".")
+# #         draw_chain.draw_read_data_intervals(chain_results_dict[chain.name], 
+# #                                             semantics=semantics, 
+# #                                             robustness_margin="none", 
+# #                                             dependency_polygon=True, 
+# #                                             max_data_age="last").save_file(os.path.join(_dir, chain.name + "_intervals.svg"))
+# #         print("Generating reachability graph for chain \"" + chain.name + "_tree.svg\".")
+# #         draw_chain.draw_dependency_graph(chain_results_dict[chain.name]).save_file(os.path.join(_dir, chain.name + "_tree.svg"))
+# #         io.PrintOuts.line()          
+# #     print("Generating task graph \"task_graph.svg\".")
+# #     draw_chain.draw_results(chains = read_data.chains, 
+# #                             tasks = read_data.tasks, 
+# #                             chain_results_dict=chain_results_dict).save_file(os.path.join(_dir,"task_graph.svg"))
+#     io.PrintOuts.line()
 
 
-
-
-
-
+ 
  
  
 if __name__ == "__main__":
@@ -273,7 +272,7 @@ if __name__ == "__main__":
    
    
     for d in dirs:
-        perform_analysis(toro_args, check_properties.case, d)
+        chain_results_dict = perform_analysis(toro_args, check_properties.case, d)
 
 
     io.PrintOuts.newline()

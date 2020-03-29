@@ -17,7 +17,7 @@ Description
 This module contains classes and functions for input/output.
 """
 import os
-
+from toro import io
  
 class SystemProperties(object):
     """
@@ -212,8 +212,9 @@ class SystemProperties(object):
         else:
             assert False, "Combination of system properties is not supported."           
         
-        #print('Case ' + str(self.case))
-
+        io.PrintOuts.line()
+        print('System properties represent case=' + str(self.case))
+        io.PrintOuts.line()
 
   
     

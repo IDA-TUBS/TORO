@@ -119,8 +119,9 @@ class parse_csv(object):
                     )
                 t.in_event_model = model.PJdEventModel(P=csv_task["period"]) 
                 t.bcrt = csv_task["bcrt"]
+                t.wcrt = csv_task["wcrt"]                
                 
-            if self.case == 4:
+            elif self.case == 4:
                 if 'BET' in csv_task["name"] or 'bet' in csv_task["name"]: 
                     t = toro_model.extTask(
                         name = csv_task["name"],

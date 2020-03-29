@@ -42,7 +42,8 @@ class extTask(model.Task):
         job = Job(name=self.name, 
                   task_name = self.name,
                   period=self.in_event_model.P, 
-                  offset=self.release_offset,
+                  offset=self.release_offset, 
+                  bcet = self.bcet,
                   wcet=self.wcet, 
                   let=self.let, 
                   job_number=job_number, 
@@ -55,13 +56,14 @@ class extTask(model.Task):
 
 class Job(object):
     """ Parameterized job model."""
-    def __init__(self, name, task_name, period, offset=None, wcet=None, let=None, bcrt=None,
+    def __init__(self, name, task_name, period, offset=None, bcet=None, wcet=None, let=None, bcrt=None,
                  job_number=None, wcrt=None, let_semantics=None, bet_semantics=None):
         self.task_name = task_name
         self.period = period
         self.offset = offset
         self.job_number = job_number
         self.name = (name + ",%d" % self.job_number)
+        self.bcet = bcet
         self.wcet = wcet
         self.wcrt = wcrt
         self.bcrt = bcrt
@@ -71,7 +73,8 @@ class Job(object):
         self.Dmin = 0
         self.Dmax = 0
         self.robustness_margin = None
-        self.robustness_margin_corrected = None        
+        #self.robustness_margin_corrected = None      
+        self.delta_let = None  
         self.successor_jobs = list() # stores successor jobs for that follows() returns True
         self.let_semantics = let_semantics
         self.bet_semantics = bet_semantics        
@@ -87,7 +90,7 @@ class Job(object):
             assert self.wcet != None or self.wcet != 0, 'Unset WCET values for task! '+ self.task_name
             assert self.let == None or self.let == 0, 'Contradictory task parameters!'
             self.Rmin = self.offset + (self.job_number -1 ) * self.period
-            self.Rmax = self.job_number * self.period - self.bcrt
+            self.Rmax = self.job_number * self.period - self.bcet
             self.Dmin = self.Rmin + self.bcrt
             self.Dmax = self.offset + self.job_number * self.period + self.wcrt  
         else:

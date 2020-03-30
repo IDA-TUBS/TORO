@@ -147,9 +147,9 @@ def perform_analysis(args, case, _dir):
         print("Calculating maximum end-to-end latencies of cause-effect chains.")
     else:
         print("Calculating maximum end-to-end latencies and robustness margins of cause-effect chains.")        
-    io.PrintOuts.line()   
     chain_results_dict = dict()
     for chain in read_data.chains:  
+        io.PrintOuts.line() 
         print("Analyzing cause-effect chain: " + chain.name) 
         print(chain.tasks)
         try:
@@ -158,9 +158,11 @@ def perform_analysis(args, case, _dir):
             assert False, ("ERROR: calc_latencies_robustness() failed!")
             return        
         chain_results_dict[chain.name] = chain_results
-        io.PrintOuts.newline()
-    toro_analysis.compute_rm_min_all_chains(chain_results_dict, read_data.tasks, read_data.chains)   
-    toro_analysis.compute_delta_let_all_chains(chain_results_dict, read_data.tasks, read_data.chains)  
+        #io.PrintOuts.newline()
+        
+    if args.lat == False:  
+        toro_analysis.compute_rm_min_all_chains(chain_results_dict, read_data.tasks, read_data.chains)   
+        toro_analysis.compute_delta_let_all_chains(chain_results_dict, read_data.tasks, read_data.chains)  
         
         
     # Analysis: latency results.    
@@ -176,39 +178,45 @@ def perform_analysis(args, case, _dir):
             writer.writerow([chain.name, chain_results_dict[chain.name].max_e2e_lat])
         
         
-    # Analysis: robustness results.         
+    # Analysis: robustness results.     
+    all_chain_tasks = set()
+    for chain in read_data.chains:
+        for task in chain.tasks: 
+            all_chain_tasks.add(task)
+    all_chain_tasks_list = list(all_chain_tasks)        
+        
     if args.lat == False: 
         io.PrintOuts.line()        
-        for task in read_data.tasks: 
+        for task in all_chain_tasks_list: 
             if case == 1 or case == 2:            
-                print("Robustness margin of task \"" + task.name + "\" in " + \
+                print("Robustness margin of task \"" + task.name +  \
                         " is " + str(chain_results_dict['RMs_system'][task.name]))     
             elif case == 3: 
-                print("Robustness margin of task \"" + task.name + "\" in " + \
+                print("Robustness margin of task \"" + task.name + \
                         " is " + str(chain_results_dict['RMs_system'][task.name]))                           
             else:
                 raise
-
+        io.PrintOuts.line()  
+        for task in all_chain_tasks_list: 
             if case == 3: 
-                print("Delta LET of task \"" + task.name + "\" in " + \
+                print("Delta LET of task \"" + task.name +  \
                         " is " + str(chain_results_dict['Delta_LET_system'][task.name]))               
-            
         io.PrintOuts.line()  
       
-    with open(_dir+'/rm_results.csv', 'w', newline='') as file:
-        writer = csv.writer(file, delimiter=';') 
-        if case == 1 or case == 2:
-            writer.writerow(['task_name', 'rm'])
-            for task in read_data.tasks:     
-                writer.writerow([task.name, chain_results_dict['RMs_system'][task.name]])
-        elif case == 3:
-            writer.writerow(['task_name', 'rm','delta_let'])
-            for task in read_data.tasks:  
-                writer.writerow([task.name, 
-                                 chain_results_dict['RMs_system'][task.name],
-                                 chain_results_dict['Delta_LET_system'][task.name]])
-        else:
-            raise
+        with open(_dir+'/rm_results.csv', 'w', newline='') as file:
+            writer = csv.writer(file, delimiter=';') 
+            if case == 1 or case == 2:
+                writer.writerow(['task_name', 'rm'])
+                for task in all_chain_tasks_list:     
+                    writer.writerow([task.name, chain_results_dict['RMs_system'][task.name]])
+            elif case == 3:
+                writer.writerow(['task_name', 'rm','delta_let'])
+                for task in all_chain_tasks_list:  
+                    writer.writerow([task.name, 
+                                     chain_results_dict['RMs_system'][task.name],
+                                     chain_results_dict['Delta_LET_system'][task.name]])
+            else:
+                raise
   
 #     io.PrintOuts.newline()
 #     io.PrintOuts.doubleline()

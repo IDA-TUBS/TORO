@@ -68,10 +68,10 @@ class Job(object):
         self.wcrt = wcrt
         self.bcrt = bcrt
         self.let = let
-        self.Rmin = 0
-        self.Rmax = 0
-        self.Dmin = 0
-        self.Dmax = 0
+        self.Rmin = None
+        self.Rmax = None
+        self.Dmin = None
+        self.Dmax = None
         self.robustness_margin = None
         #self.robustness_margin_corrected = None      
         self.delta_let = None  
@@ -85,21 +85,22 @@ class Job(object):
         The function computes minimum and maximum read and data intervals of a job.
         """
         # job belongs to BET task
-        if self.let == None or self.let == 0: 
+        if self.bet_semantics == True: 
             #print('Set R/D intervals for BET job.')
             assert self.wcet != None or self.wcet != 0, 'Unset WCET values for task! '+ self.task_name
-            assert self.let == None or self.let == 0, 'Contradictory task parameters!'
+            assert self.let == None or self.let == 0, 'Contradictory task parameters!'  
             self.Rmin = self.offset + (self.job_number -1 ) * self.period
-            self.Rmax = self.job_number * self.period - self.bcet
+            self.Rmax = self.Rmin + self.wcrt - self.bcet            
             self.Dmin = self.Rmin + self.bcrt
-            self.Dmax = self.offset + self.job_number * self.period + self.wcrt  
-        else:
+            self.Dmax = self.offset + self.job_number * self.period + self.wcrt              
+        elif self.let_semantics == True:
             #print('Set R/D intervals for LET job.')         
             self.Rmin = self.offset + (self.job_number -1 ) * self.period
             self.Rmax = self.Rmin
-            # changed to less tight bound because of RM computation: self.Dmin = self.Rmin 
             self.Dmin = self.Rmin + self.let
             self.Dmax = self.offset + self.job_number * self.period + self.let
+        else:
+            raise
         
     def iterate(self, current_path, path_matrix, size):
         """Recursive function to extract possible paths and store in path_matrix."""

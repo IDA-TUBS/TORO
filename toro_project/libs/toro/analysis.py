@@ -39,6 +39,7 @@ class ChainProperties(object):
         self.log_robustness_margins = dict()
         #self.log_max_e2e_lat = dict()
         self.path_matrix = None
+        self.path_matrix_adapted = None
         self.max_e2e_lat = None        
         
         
@@ -55,14 +56,23 @@ class ChainProperties(object):
                 root = False
             self.__set_jobs(k, results, self.hyperperiod, self.job_matrix, root, l)
             l += 1
+
              
         # 3) determine possible paths & calculate maximum data age
         self.path_matrix = self.__determine_paths(self.job_matrix)
-        self.max_e2e_lat = self.__determine_max_e2e_lat(self.path_matrix) 
+        
+        if(len(chain.tasks) > 2):
+            # prune path_matrix from impossible paths
+            self.path_matrix_adapted = self.__adapt_DI(self.path_matrix)
+        else:
+            self.path_matrix_adapted = copy.deepcopy(self.path_matrix)
+        
+        self.max_e2e_lat = self.__determine_max_e2e_lat(self.path_matrix_adapted) 
                
         assert self.max_e2e_lat != None 
         if chain.e2e_deadline != None:
             assert self.max_e2e_lat <= chain.e2e_deadline, "The max. latency violates the specified e2e-deadline!"
+
 
         # 4) calculate robustness margins
         if args.lat == False:
@@ -103,7 +113,8 @@ class ChainProperties(object):
         if(root):
             # instantiate all jobs of the root task in the hyper period 
             for k in range(int(HP / task.in_event_model.P)):
-                current_job = task.instantiate_job(job_number=job_number, wcrt=results[task].wcrt, 
+                current_job = task.instantiate_job(job_number=job_number, 
+                                                   wcrt=results[task].wcrt, 
                                                    bcrt=results[task].bcrt)
                 current_job.parent_task = task
                 job_line.append(current_job)
@@ -134,8 +145,10 @@ class ChainProperties(object):
         # assign successor jobs to jobs in job_matrix
         for i in range(len(job_matrix) - 1):  # iterate over rows in matrix
             for k in range(len(job_matrix[i])):  # iterate over columns in row
-                # determine starting job of successor, see Eq. 2 of Becker et al. 2016 (adapted for offsets)
-                l = math.ceil((job_matrix[i][k].Dmin - job_matrix[i+1][0].offset) / job_matrix[i + 1][0].period)
+                # earliest possible job_matrix[i+1][l] that may read from job_matrix[i][k]
+                # see Eq. 2 of Becker et al. 2016 (adapted for offsets)
+                # note that job index is by 1 smaller than job number
+                l = math.ceil((job_matrix[i][k].Dmin - job_matrix[i+1][0].offset) / job_matrix[i + 1][0].period) - 1
                 while (l < len(job_matrix[i + 1])):
                     if (self.__follows(job_matrix[i][k], job_matrix[i + 1][l])):
                         job_matrix[i][k].successor_jobs.append(job_matrix[i + 1][l])
@@ -153,6 +166,44 @@ class ChainProperties(object):
             return True
         else:
             return False
+
+
+    def __adapt_DI(self, path_matrix):
+        """ 
+        Optimization of the path matrix by Becker et al. 2016.
+        """
+        path_matrix_adapted = path_matrix
+        idx = 0
+        invalid_idx = list()
+    
+        for current_path in path_matrix:  # take each path
+            for j in range(len(current_path) - 1):
+                predecessor = current_path[j]
+                successor = current_path[j + 1]
+                if successor.bet_semantics == True:
+                    successor.Dmin = max(predecessor.Dmin + successor.bcrt, successor.Dmin)
+                elif successor.let_semantics == True:
+                    successor.Dmin = max(predecessor.Dmin + successor.let, successor.Dmin)
+                else:
+                    raise
+            # then check again and save index that have become invalid
+            for j in range(len(current_path) - 1):
+                if (not (self.__follows(current_path[j], current_path[j + 1]))):
+                    # save the index of invalid paths
+                    invalid_idx.append(idx)
+                else:
+                    pass
+            idx += 1
+    
+        print('path_matrix adapted: invalid_idx = ' + str(invalid_idx))
+    
+        #now remove all invalid paths from the path-matrix and return
+        counter = 0
+        for k in invalid_idx:
+            pop_idx = k - counter
+            path_matrix_adapted.pop(pop_idx)
+            counter += 1
+        return path_matrix_adapted
 
 
     def __determine_max_e2e_lat(self, path_matrix):
@@ -210,22 +261,34 @@ class ChainProperties(object):
                 q = None
                 # no successor jobs
                 if len(job_matrix[task][job].successor_jobs) == 0: 
-                    # earliest possible job that may read from job_matrix[task][job]
-                    l = math.ceil((job_matrix[task][job].Dmin - job_matrix[task + 1][0].offset)/ job_matrix[task + 1][0].period)
+                    # earliest possible job_matrix[task+1][l] that may read from job_matrix[task][job]
+                    # see Eq. 2 of Becker et al. 2016 (adapted for offsets)
+                    # note that job index is by 1 smaller than job number                    
+                    l = math.ceil((job_matrix[task][job].Dmin 
+                                   - job_matrix[task + 1][0].offset)/ job_matrix[task + 1][0].period) -1
                     while (True):
-                        # first job of (task+1) that could be reached if disturbances are present
-                        if (job_matrix[task + 1][l].Rmin > job_matrix[task][job].Dmax): 
-                            q = l+1 
-                            if q-1 < len(job_matrix[task+1]):
+                        if l < len(job_matrix[task+1]):
+                            # first job of (task+1) that could be reached if disturbances are present
+                            if (job_matrix[task + 1][l].Rmin > job_matrix[task][job].Dmax): 
+                                q = l+1 
                                 job_matrix[task][job].rm_job = job_matrix[task+1][q-1] 
+                                break
                             else:
-                                copy_chain = copy.copy(self.chain)                   
-                                job_matrix[task][job].rm_job = self.chain.tasks[task+1].instantiate_job(job_number=q, \
-                                                                                                        wcrt=results[copy_chain.tasks[task+1]].wcrt, \
-                                                                                                        bcrt=results[copy_chain.tasks[task+1]].bcrt)
-                            break
+                                l += 1
+                        elif l >= len(job_matrix[task+1]): 
+                            copy_chain = copy.copy(self.chain)                     
+                            test_job_l = self.chain.tasks[task+1].instantiate_job(job_number= l+1, \
+                                                                                wcrt=results[copy_chain.tasks[task+1]].wcrt, \
+                                                                                bcrt=results[copy_chain.tasks[task+1]].bcrt)
+                            if (test_job_l.Rmin > job_matrix[task][job].Dmax): 
+                                q = l+1 
+                                job_matrix[task][job].rm_job = copy.deepcopy(test_job_l)
+                                break
+                            else:
+                                l += 1                            
                         else:
-                            l += 1
+                            raise
+                        
                 # successor jobs
                 else:
                     # job number for q, but index in job matrix must be smaller by one
@@ -239,6 +302,7 @@ class ChainProperties(object):
                         job_matrix[task][job].rm_job = self.chain.tasks[task+1].instantiate_job(job_number=q, \
                                                                                                 wcrt=results[copy_chain.tasks[task+1]].wcrt, \
                                                                                                 bcrt=results[copy_chain.tasks[task+1]].bcrt)
+                
                 # compute theta for each job_matrix[task][job]                             
                 job_matrix[task][job].theta = job_matrix[task][job].rm_job.Rmin -  job_matrix[task][job].Dmax 
                 #print("Job: %s -> %s -  RM: %d" % (job_matrix[task][job].name, job_matrix[task][job].rm_job.name, job_matrix[task][job].theta))
@@ -347,11 +411,17 @@ def compute_rm_min_all_chains(chain_results_dict, tasks, chains):
     rm_min_all_chains_dict = dict()
     for task in tasks:
         rm_min_all_chains_dict[task.name]=float('Inf')     
+        
     for task in tasks:
         for chain in chains:
             if task in chain.tasks:
-                if rm_min_all_chains_dict[task.name] > chain_results_dict[chain.name].task_robustness_margins_dict[task.name]:
-                    rm_min_all_chains_dict[task.name] = chain_results_dict[chain.name].task_robustness_margins_dict[task.name]
+                if task.let_semantics == True:
+                    if task.wcrt == 'n/a' or task.wcrt == None or task.wcrt == 0: 
+                        rm_min_all_chains_dict[task.name] = 'n/a since WCRT unknown'
+                elif task.bet_semantics == True:
+                    if rm_min_all_chains_dict[task.name] > chain_results_dict[chain.name].task_robustness_margins_dict[task.name]:
+                        rm_min_all_chains_dict[task.name] = chain_results_dict[chain.name].task_robustness_margins_dict[task.name]
+                        
     chain_results_dict['RMs_system']= rm_min_all_chains_dict
 
 

@@ -1,3 +1,16 @@
+# ---> TORO generated result files
+rm_results.csv
+wcrt_results.csv
+lat_results.csv
+
+RESULTS_LOG.txt
+*_results.txt
+
+*_intervals.svg
+*_tree.svg
+Results.svg
+
+
 # ---> Eclipse
 
 .metadata

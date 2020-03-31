@@ -22,7 +22,7 @@ from __future__ import division
 from toro import plot
 import copy
 import math
-
+import pycpa
 
 class ChainProperties(object):
     """
@@ -34,13 +34,23 @@ class ChainProperties(object):
         If the class 'ChainProperties' is initialized, it will compute the
         maximum end-to-end latency and the robustness margins for 'chain'. 
         """
+        self.results = results
         self.chain = chain
+        self.hyperperiod = None
         self.job_matrix = list()
         self.log_robustness_margins = dict()
-        #self.log_max_e2e_lat = dict()
         self.path_matrix = None
         self.path_matrix_adapted = None
         self.max_e2e_lat = None        
+        
+        # copied data structures for test
+        self.copied_results = dict()        
+        self.copied_chain = copy.deepcopy(chain)
+        self.copied_hyperperiod = None          
+        self.copied_job_matrix = list()        
+        self.copied_path_matrix = None
+        self.copied_path_matrix_adapted = None
+        self.copied_max_e2e_lat = None           
         
         
         #1) calculate hyper period of chain tasks
@@ -74,7 +84,7 @@ class ChainProperties(object):
             assert self.max_e2e_lat <= chain.e2e_deadline, "The max. latency violates the specified e2e-deadline!"
 
 
-        # 4) calculate robustness margins
+        # 4) calculate robustness margins resp. Delta LET
         if args.lat == False:
             if (case == 1 or case == 2 or case == 3): 
                 self.task_robustness_margins_dict = dict()
@@ -83,9 +93,17 @@ class ChainProperties(object):
                     self.task_robustness_margins_dict[task.name] = None
                     self.task_delta_let_dict[task.name] = None        
                 self.__calc_robustness_margins(self.job_matrix, chain, results, case)
+                
+                # test robustness margins resp. Delta LET
+                if args.test == True:
+                    self.__test()
+                
             else:
                 print('WARNING: The robustness analysis does not support this kind of system model.')
 
+
+        
+        
 
     def __calc_hyperperiod(self, chain):
         """
@@ -195,7 +213,7 @@ class ChainProperties(object):
                     pass
             idx += 1
     
-        print('path_matrix adapted: invalid_idx = ' + str(invalid_idx))
+        #print('path_matrix adapted: invalid_idx = ' + str(invalid_idx))
     
         #now remove all invalid paths from the path-matrix and return
         counter = 0
@@ -400,6 +418,75 @@ class ChainProperties(object):
         return a * b // self.__gcd(a, b)          
     
 
+
+    def __test(self):
+        """
+        Test for validity of robustness margins.
+        """
+        
+        # add maximum disturbances to WCRT / LET
+        wcrt_dict = dict() 
+        let_dict = dict()
+        for task in self.chain.tasks: 
+            if task.bet_semantics == True:
+                wcrt_dict[task.name] = task.wcrt 
+            elif task.let_semantics == True:
+                let_dict[task.name] = task.let
+            
+        for copied_task in self.copied_chain.tasks: 
+            if copied_task.bet_semantics == True: 
+                new_wcrt = (wcrt_dict[copied_task.name] + self.task_robustness_margins_dict[copied_task.name] - 1)
+                assert new_wcrt <= copied_task.in_event_model.P - copied_task.release_offset
+                task.wcrt  = new_wcrt
+                # create new results data structure
+                self.copied_results[copied_task] = pycpa.analysis.TaskResult()
+                self.copied_results[copied_task].wcrt = new_wcrt                
+                copied_task.analysis_results = self.copied_results[copied_task]                
+            elif copied_task.let_semantics == True:
+                # create new results data structure
+                self.copied_results[copied_task] = pycpa.analysis.TaskResult()
+                self.copied_results[copied_task].wcrt = copied_task.wcrt
+                self.copied_results[copied_task].bcrt = copied_task.bcrt 
+                copied_task.analysis_results = self.copied_results[copied_task]                  
+                # update let
+                new_let = (let_dict[copied_task.name] + self.task_delta_let_dict[copied_task.name] - 1)
+                assert new_let <= copied_task.in_event_model.P - copied_task.release_offset
+                copied_task.let = new_let
+            else:
+                raise
+         
+         
+        #1) calculate hyper period of chain tasks
+        self.copied_hyperperiod = self.__calc_hyperperiod(self.copied_chain)      
+        
+        
+        #2) build a matrix of instantiated jobs
+        l = 0
+        for k in self.copied_chain.tasks:
+            if(l==0):
+                root = True
+            else:
+                root = False
+            self.__set_jobs(k, self.copied_results, self.copied_hyperperiod, self.copied_job_matrix, root, l)
+            l += 1
+         
+         
+        # re-run latency analysis for increased WCRT resp. LET
+        self.copied_path_matrix = self.__determine_paths(self.copied_job_matrix)
+        
+        if(len(self.copied_chain.tasks) > 2):
+            # prune path_matrix from impossible paths
+            self.copied_path_matrix_adapted = self.__adapt_DI(self.copied_path_matrix)
+        else:
+            self.copied_path_matrix_adapted = copy.deepcopy(self.copied_path_matrix)
+        
+        self.copied_max_e2e_lat = self.__determine_max_e2e_lat(self.copied_path_matrix_adapted) 
+               
+        assert self.copied_max_e2e_lat != None 
+        if self.copied_chain.e2e_deadline != None:
+            assert self.copied_max_e2e_lat <= self.copied_chain.e2e_deadline, "The max. latency violates the specified e2e-deadline!"        
+        
+        
 
     
 def compute_rm_min_all_chains(chain_results_dict, tasks, chains):

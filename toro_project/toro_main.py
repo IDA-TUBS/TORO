@@ -183,7 +183,7 @@ def perform_analysis(args, case, _dir):
     for chain in read_data.chains:
         for task in chain.tasks: 
             all_chain_tasks.add(task)
-    all_chain_tasks_list = list(all_chain_tasks)        
+    all_chain_tasks_list = sorted(list(all_chain_tasks), key=lambda x: x.name)       
         
     if args.lat == False: 
         io.PrintOuts.line()        
@@ -257,7 +257,11 @@ if __name__ == "__main__":
     toro_parser.add_argument('--lat', 
                         dest='lat', 
                         action='store_true',
-                        help='computes only upper bounds on latencies')                                             
+                        help='computes only upper bounds on latencies')      
+    toro_parser.add_argument('--test', 
+                        dest='test', 
+                        action='store_true',
+                        help='includes testing for robustness margins / Delta LETs')                                             
     toro_args = toro_parser.parse_args()    
     
     print(__banner())   

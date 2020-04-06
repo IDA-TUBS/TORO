@@ -27,7 +27,7 @@ class extTask(model.Task):
     """
     def __init__(self, name, release_offset, bcet, wcet,
                  scheduling_parameter,   
-                 let_semantics, bet_semantics, let):
+                 let_semantics, bet_semantics, let, wcrt=None, bcrt=None):
         model.Task.__init__(self, name) 
         self.release_offset = release_offset        
         self.bcet = bcet
@@ -35,7 +35,9 @@ class extTask(model.Task):
         self.scheduling_parameter = scheduling_parameter
         self.let_semantics = let_semantics
         self.bet_semantics = bet_semantics
-        self.let = let
+        self.let = let 
+        self.wcrt = wcrt
+        self.bcrt = bcrt
  
     def instantiate_job(self, job_number, wcrt, bcrt):
         """This function instantiates a job with ID job_number."""
@@ -51,6 +53,9 @@ class extTask(model.Task):
                   bcrt=bcrt,
                   let_semantics = self.let_semantics,
                   bet_semantics = self.bet_semantics)
+        assert bcrt == self.bcet, ('Warning: check relation between bcrt = ' + str(bcrt) 
+                                   +  ' and bcet = ' + str(self.bcet) 
+                                   + ' for task ' + self.name + '.')
         return job
 
 
@@ -73,7 +78,7 @@ class Job(object):
         self.Dmin = None
         self.Dmax = None
         self.robustness_margin = None
-        #self.robustness_margin_corrected = None      
+        self.theta = None      
         self.delta_let = None  
         self.successor_jobs = list() # stores successor jobs for that follows() returns True
         self.let_semantics = let_semantics

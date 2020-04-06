@@ -95,15 +95,14 @@ class parse_csv(object):
                     scheduling_parameter= csv_task["priority"],
                     let_semantics = False,
                     bet_semantics = True,
-                    let = None              
+                    let = None,
+                    bcrt = csv_task["bcrt"],
+                    wcrt = csv_task["wcrt"]                                
                     )
                 t.in_event_model = model.PJdEventModel(P=csv_task["period"])
                 if self.case == 1:
                     assert (isinstance(csv_task["wcrt"],int) and csv_task["wcrt"] > 0), ("WCRT of task " + csv_task["name"] + "is not specified.")
-                    t.bcrt = csv_task["bcrt"]
-                    t.wcrt = csv_task["wcrt"]
                 elif self.case == 2:
-                    t.bcet = 0
                     assert t.release_offset == 0, "Task offsets contradicts initial assumptions."
                     
             elif self.case ==3: 
@@ -223,11 +222,11 @@ class parse_csv(object):
                     r = model.Resource(csv_resc["name"], scheduler)
                     rescs.append(r)
                 else:
-                    print("ERROR: Scheduler \"" + csv_resc["scheduler"] + "\" in resource: \"" + csv_resc["name"] + "not supported for case 2.")
-                    self.__error = True
+                    assert False, ("ERROR: Scheduler \"" + csv_resc["scheduler"] + "\" in resource: \"" 
+                                   + csv_resc["name"] + " not supported for case 2.")
             return rescs
         else:
-            assert True
+            raise
 
 
     def __read_csv_chains(self, file):

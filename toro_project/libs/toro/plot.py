@@ -21,7 +21,7 @@ import copy
 
 
 
-class draw_read_data_intervals(object):
+class interval_graph(object):
     """ Initialize a new Image\n
 
         Optional:
@@ -42,7 +42,7 @@ class draw_read_data_intervals(object):
         self.__semantics = semantics
         self.__cut_periods = 0
 
-        width , height = self.__calc_img_size()
+        width, height = self.__calc_img_size()
         self.__img = image("test", width, height)
 
         self._draw_read_data_intervals()
@@ -55,21 +55,26 @@ class draw_read_data_intervals(object):
         
 
     def __calc_img_size(self):
+        """
+        This function calculates width and height of the svg file.
+        """
         # search Task with the longest Period
         self.__longest_period = 0
         for p in self.__chain_results.path_matrix[-1]:
             if p.period > self.__longest_period:
                 self.__longest_period = p.period
         # calculate width and height of the Image
-        width = int(self.__scale * ( self.__chain_results.hyperperiod + self.__period_scale * self.__longest_period) + self.__off_x_g * 2)
+        width = int(self.__scale * ( self.__chain_results.hyperperiod + self.__period_scale * self.__longest_period) 
+                    + self.__off_x_g * 2)
         height = len(self.__chain_results.path_matrix[0]) * 200 + 100
 
         if self.__chain_results.hyperperiod / self.__longest_period > 16:
             self.__cut_periods = self.__chain_results.hyperperiod / self.__longest_period - 4
         return (width, height)
 
+
     def save_file(self, file_name="draw_chain_no_filename.svg"):
-        width , height = self.__calc_img_size()
+        width, height = self.__calc_img_size()
         
         # Sort the Elements in the Image, so they overlap correctly
         for c in self.__img.root.getchildren():
@@ -107,6 +112,7 @@ class draw_read_data_intervals(object):
                 tree.write(str(file_name) + ".svg")
         else:
             tree.write(str(file_name) + ".svg")
+  
   
     def _draw_read_data_intervals(self):
         off_y = 50
@@ -558,7 +564,7 @@ class draw_read_data_intervals(object):
 
         self.__img._polygon(str_points, 'fill:black; stroke:none; opacity:0.3;', name="max_data_age")    
         
-class draw_dependency_graph(object):
+class tree_graph(object):
     """Draw Dependency Graph
     """
     __off_x = 20
@@ -661,7 +667,7 @@ class draw_dependency_graph(object):
         return n, i
 
         
-class draw_results(object):
+class task_graph(object):
 
     def __init__(self, chains, tasks, chain_results_dict):
         self.chains = chains
@@ -677,7 +683,7 @@ class draw_results(object):
         for chain in chains:            
             self.draw_chain(chain, self.color_chains[r])
             r = (r + 1) % len(self.color_chains)
-        #self.draw_text_summary()
+
 
     def save_file(self, filename=""):
        
@@ -741,58 +747,40 @@ class draw_results(object):
         for t in range(len(self.tasks)):
             x = radius * 1.5 + math.sin(winkel * t) * radius
             y = radius * 1.5 + math.cos(winkel * t) * radius
-            self.__img._text_circle(self.tasks[t].name, x, y, self.tasks[t].name, "fill: " + self.task_color(self.tasks[t].name) + "; stroke: black; stroke-width: 3;")
+            self.__img._text_circle(self.tasks[t].name, x, y, self.tasks[t].name, 
+                                    "fill: " + self.task_color(self.tasks[t].name) 
+                                    + "; stroke: black; stroke-width: 3;")
+
+
         
-    def draw_text_summary(self):
-        off_x = (len(self.tasks) * 150) / (math.pi) + 150
-        off_y = 50
-        if off_x > 600:
-            off_y = off_x
-            off_x = 50
-
-        for c in range(len(self.chains)):
-            chain = self.chains[c]
-            off_y += 30
-            self.__img._text_line(self.chains[c].name, off_x, off_y, "30px")
-            off_y_0 = off_y
-            off_y += 30
-            self.__img._text_line("  Max e2e-latency: " + str(self.chain_results_dict[chain.name].max_data_age), off_x + 20, off_y, "20px")
-            off_y += 30
-            self.__img._text_line("  Robustness margins w.r.t. isolated chain: ", off_x + 20, off_y, "20px")
-            off_y += 30
-            for task in chain.tasks:
-                self.__img._text_line(task.name + ": " + str(self.chain_results_dict[chain.name].task_robustness_margins_dict[task.name]), off_x + 30, off_y, "15px")   
-                self.__img._circle(off_x + 23, off_y - 5, 5 , "fill:" + self.task_color(task.name))
-                off_y += 30             
-
-            self.__img._arrow_line(off_x + 10, off_y - 30, off_x + 10, off_y_0 + 15, 10, "fill:" + self.chain_color(self.chains[c].name))
-
-        off_y += 50
-        self.__img._text_line("Robustness margin w.r.t. all chains", off_x, off_y, "30px")
-        for task in self.tasks:
-            off_y += 30
-            self.__img._text_line(task.name + ":  " + str(self.chain_results_dict['RMs_system'][task.name]), off_x + 20, off_y, "20px")
-            self.__img._circle(off_x + 8, off_y - 8, 8 , "fill:" + self.task_color(task.name))
 
 class image(object):
+    """
+    An instance of this class is an XML-based description of an image. 
+    The class methods add basic geometric forms.
+    """
 
     root = None
 
     def __init__(self, filename, width, height):
-        
+        """
+        This function initializes the XML root 'svg'.
+        """
         self.filename = str(filename)
         self.root = xml.Element("svg", width = str(width), height = str(height))
         
         self.root.set("xmlns", "http://www.w3.org/2000/svg")
         self.root.set("version", "1.1")
+
         
     def save(self, options = "none"):
+        """
+        """
         if options ==  "draw_chain":
             for c in self.root.getchildren():
                 if c.tag == "line":
                     self.root.remove(c)
                     self.root.insert(0,c)
-
             for c in self.root.getchildren():
                 if c.tag == "polygon":
                     if c.get("name") == "robustness_margin":
@@ -815,6 +803,7 @@ class image(object):
                     self.root.insert(0,c)
         tree = xml.ElementTree(self.root)
         tree.write(self.filename + ".svg")
+
 
     def _get_element(self, _id):
         for e in self.root.getchildren():

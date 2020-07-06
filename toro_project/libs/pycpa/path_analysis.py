@@ -24,13 +24,13 @@ from __future__ import division
 
 from . import options
 from . import model
+from . import util
 
 import math
 
 
 def end_to_end_latency(path, task_results, n=1 , task_overhead=0,
                        path_overhead=0, **kwargs):
-    # type: (object, object, object, object, object, object) -> object
     """ Computes the worst-/best-case e2e latency for n tokens to pass the path.
     The constant path.overhead is added to the best- and worst-case latencies.
 
@@ -213,7 +213,6 @@ def cause_effect_chain_reaction_time(chain, task_results, details=None):
     return cause_effect_chain(chain, task_results, details, 'reaction-time')
 
 def cause_effect_chain(chain, task_results, details=None, semantics='data-age'):
-    # type: (object, object, object, object) -> object
     """ computes the data age of the given cause effect chain
     :param chain: model.EffectChain
     :param task_results: dict of analysis.TaskResult
@@ -223,6 +222,10 @@ def cause_effect_chain(chain, task_results, details=None, semantics='data-age'):
 
     if details is None:
         details = dict()
+
+    periods = [_period(t) for t in sequence]
+    if util.GCD(periods) != min(periods):
+        print("Error: cause-effect chain analysis requires harmonic periods")
 
     l_max = _phi(sequence[0]) + _jitter(sequence[0])
     details[sequence[0].name+'-PHI+J'] = l_max
@@ -334,13 +337,13 @@ def _calculate_forward_distance(writer, reader, task_results, details):
             candidates.add(_period(reader))
         else:
 
-            # include previous cycle?
-            if _wplus(writer, task_results) > _rmin(reader, task_results):
-                candidates.add(_rplus(reader, task_results) - _wmin(writer, task_results, -1))
-
-            # include all other possible writers
+            # include all possible writers
             for n in range(int(math.ceil(_period(reader)/_period(writer)))):
                 candidates.add(_rplus(reader, task_results) - _wmin(writer, task_results, n))
+
+                # if write time can be earlier than read time, add distance to next reader
+                if _wplus(writer, task_results, n) > _rmin(reader, task_results):
+                    candidates.add(_rplus(reader, task_results, 1) - _wmin(writer, task_results, n))
 
         result = max(candidates)
 

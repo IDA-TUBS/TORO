@@ -89,16 +89,15 @@ def perform_analysis(args, case, _dir):
         # override wcrt in task_results
         for t in task_results.keys():
             task_results[t].wcrt = t.wcrt    
-            task_results[t].bcrt = t.bcrt          
+            task_results[t].bcrt = t.bcrt
+            t.bcet = copy.copy(t.bcrt)          
         semantics = "BET_with_known_WCRTs"
     
     elif case == 2:
         try:
             task_results = pycpa.analysis.analyze_system(system)
             for r in system.resources:
-                for t in r.tasks:       
-                    if t.wcrt != None or t.wcrt != 'unknown' or t.wcrt != 'n/a':
-                        assert t.wcrt == task_results[t].wcrt     
+                for t in r.tasks:         
                     t.wcrt = task_results[t].wcrt
                     # Sonderfall EMSOFT:
                     if isinstance(t.bcrt, int):
@@ -154,8 +153,10 @@ def perform_analysis(args, case, _dir):
     # Are implicit deadlines violated? 
     violated_deadlines = False
     for r in system.resources:
-        for t in r.tasks:            
-            if not (t.wcrt <= t.in_event_model.P - t.release_offset):
+        for t in r.tasks:     
+            if t.wcrt != None or t.wcrt != 'unknown' or t.wcrt != 'n/a':
+                pass        
+            elif not (t.wcrt <= t.in_event_model.P - t.release_offset):
                 print('Task ' + t.name + ' violates its implicit deadline by ' 
                       + str(t.wcrt - t.in_event_model.P - t.release_offset)) 
                 if violated_deadlines == False:

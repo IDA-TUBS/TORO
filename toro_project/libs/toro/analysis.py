@@ -288,7 +288,7 @@ class ChainProperties(object):
                 # compute theta for each job_matrix[task][job]                             
                 job_matrix[task][job].theta = job_matrix[task][job].rm_job.Rmin -  job_matrix[task][job].Dmax 
                 assert job_matrix[task][job].theta >= 0
-                #print("Job: %s -> %s -  RM: %d" % (job_matrix[task][job].name, job_matrix[task][job].rm_job.name, job_matrix[task][job].theta))
+                #print("Job: %s -> %s -  theta: %d" % (job_matrix[task][job].name, job_matrix[task][job].rm_job.name, job_matrix[task][job].theta))
 
 
 
@@ -312,7 +312,7 @@ class ChainProperties(object):
                         else:
                             raise
                         assert job.robustness_margin >= 0   
-                    elif job_matrix[j][0].let_semantics == True :   
+                    elif job_matrix[j][0].let_semantics == True :  
                         if chain.e2e_deadline == None or chain.e2e_deadline == 'n/a':
                             job.delta_let = min(job_matrix[j][0].period 
                                                 - job_matrix[j][0].offset 
@@ -323,7 +323,7 @@ class ChainProperties(object):
                                                 job_matrix[j][0].period
                                                 - job_matrix[j][0].offset 
                                                 - job_matrix[j][0].let,
-                                                job_matrix[j][0].period)                         
+                                                job_matrix[j][0].period)                       
                     else:  
                         raise  
                         assert job.delta_let >= 0                      
@@ -345,6 +345,7 @@ class ChainProperties(object):
                         raise                    
                 
 
+
         # setting min theta/robustness margin/delta let for the task based on job results
         i=-1   
         for task in job_matrix:
@@ -365,8 +366,11 @@ class ChainProperties(object):
                     # delta let
                     if job.delta_let < self.task_delta_let_dict[chain.tasks[i].name]:
                         self.task_delta_let_dict[chain.tasks[i].name] = job.delta_let
-                    if job.theta < self.task_theta_dict[chain.tasks[i].name]:
-                        self.task_theta_dict[chain.tasks[i].name] = job.theta 
+                    if task == job_matrix[-1]:
+                        self.task_theta_dict[chain.tasks[i].name] = 'n/a'                        
+                    else:
+                        if job.theta < self.task_theta_dict[chain.tasks[i].name]:
+                            self.task_theta_dict[chain.tasks[i].name] = job.theta 
                     # robustness margin    
                     if job_matrix[i][0].wcrt == 'n/a' or job_matrix[i][0].wcrt == None:
                         self.task_robustness_margins_dict[chain.tasks[i].name] = 'n/a since WCRT unknown'
@@ -377,18 +381,20 @@ class ChainProperties(object):
                     
                 else:
                     raise
-            assert self.task_robustness_margins_dict[chain.tasks[i].name] != float('inf')
-            assert self.task_robustness_margins_dict[chain.tasks[i].name] >= 0
-            assert self.task_robustness_margins_dict[chain.tasks[i].name] <= (chain.tasks[i].in_event_model.P 
-                                                                              - chain.tasks[i].wcrt 
-                                                                              - chain.tasks[i].release_offset) 
+            
+            if not (job_matrix[i][0].wcrt == 'n/a' or job_matrix[i][0].wcrt == None):
+                assert self.task_robustness_margins_dict[chain.tasks[i].name] != float('inf')
+                assert self.task_robustness_margins_dict[chain.tasks[i].name] >= 0
+                assert self.task_robustness_margins_dict[chain.tasks[i].name] <= (chain.tasks[i].in_event_model.P 
+                                                                                  - chain.tasks[i].wcrt 
+                                                                                  - chain.tasks[i].release_offset) 
             if not task == job_matrix[-1]:
                 assert self.task_theta_dict[chain.tasks[i].name] != float('inf')
                 assert self.task_theta_dict[chain.tasks[i].name] >= 0
             
             if case == 3:
                 assert self.task_delta_let_dict[chain.tasks[i].name] != float('inf') 
-                assert self.task_delta_let_dict[chain.tasks[i].name] >= float('inf')                   
+                
 
     
     def __gcd(self, a, b):

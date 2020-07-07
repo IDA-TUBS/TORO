@@ -117,7 +117,10 @@ class parse_csv(object):
                     let = csv_task["let"]
                     )
                 t.in_event_model = model.PJdEventModel(P=csv_task["period"]) 
-                t.bcrt = csv_task["bcrt"]
+                if  csv_task["bcrt"] == None or  csv_task["bcrt"] == 'unknown' or  csv_task["bcrt"] == 'n/a':
+                    t.bcrt = t.bcet
+                else:
+                    t.bcrt = csv_task["bcrt"]
                 t.wcrt = csv_task["wcrt"]                
                 
             elif self.case == 4:

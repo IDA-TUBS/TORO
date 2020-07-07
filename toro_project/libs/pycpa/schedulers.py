@@ -115,11 +115,11 @@ class SPNPScheduler(analysis.Scheduler):
                 b = max(b, ti.wcet)
         return b
 
-    def spnp_busy_period(self, task):
+    def spnp_busy_period(self, task, w):
         """ Calculated the busy period of the current task
         """
         b = self._blocker(task) + self.ctx_switch_overhead
-        w = b
+        w = max(b, w)
 
         while True:
             w_new = b
@@ -142,7 +142,7 @@ class SPNPScheduler(analysis.Scheduler):
         """
 
         # if there are no new activations when the current busy period has been completed, we terminate
-        if task.in_event_model.delta_min(q + 1) >= self.spnp_busy_period(task):
+        if task.in_event_model.delta_min(q + 1) >= self.spnp_busy_period(task, w):
             return True
         return False
 
@@ -320,6 +320,9 @@ class SPPSchedulerCorrelatedRox(SPPScheduler):
     """ SPP scheduler with dmin correlation.
         Computes the approximate response time bound as presented in [Rox2010]_.
     """
+
+    def get_dependent_tasks(self, task):
+        return task.get_resource_interferers()
 
     def b_plus_idle(self, task, q, details=None, task_results=None):
         """ Implements Case 2 in [Rox2010]_.
@@ -536,13 +539,13 @@ class SPPSchedulerCorrelatedRoxExact(SPPScheduler):
             for d in busy_details.keys():
                 details[d] = busy_details[d]
 
-    #        classic_details  = dict()
-    #        classic_intrf = SPPScheduler.b_plus(self, task, q, classic_details)
-    #        if classic_intrf < w:
-    #            w = classic_intrf
-    #            if details is not None:
-    #                for d in classic_details.keys():
-    #                    details[d] = classic_details[d]
+#        classic_details  = dict()
+#        classic_intrf = SPPScheduler.b_plus(self, task, q, classic_details)
+#        if classic_intrf < w:
+#            w = classic_intrf
+#            if details is not None:
+#                for d in classic_details.keys():
+#                    details[d] = classic_details[d]
 
         assert(w >= q * task.wcet)
         return w

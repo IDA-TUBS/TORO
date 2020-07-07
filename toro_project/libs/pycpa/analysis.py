@@ -131,8 +131,8 @@ class JunctionStrategy(object):
 
     def get_weak_event_model(self):
         new_output_event_model = model.EventModel()
-        new_output_event_model.deltamin_func = lambda n: (INFINITY)
-        new_output_event_model.deltaplus_func = lambda n: (INFINITY)
+        new_output_event_model.deltamin_func = lambda n: (model.INFINITY)
+        new_output_event_model.deltaplus_func = lambda n: (model.INFINITY)
         return new_output_event_model
 
 
@@ -156,6 +156,9 @@ class Scheduler(object):
 
     def __init__(self):
         pass
+
+    def get_dependent_tasks(self, task):
+        return set()
 
     def b_plus(self, task, q, details=None, **kwargs):
         """ Maximum Busy-Time for q activations of a task.
@@ -590,6 +593,11 @@ class GlobalAnalysisState(object):
                 inputDependentTask[task] |= set(task.get_mutex_interferers())
                 self._add_dependent_tasks(task, task.next_tasks, inputDependentTask)
 
+            # add local dependent tasks (scheduler-dependent)
+            for task in r.tasks:
+                for t in r.scheduler.get_dependent_tasks(task):
+                    inputDependentTask[t].add(task)
+
         self.dependentTask = inputDependentTask
 
     def _add_dependent_tasks(self, task, dependent_tasks, inputDependentTask):
@@ -642,8 +650,6 @@ class GlobalAnalysisState(object):
 
 def analyze_system(system, task_results=None, only_dependent_tasks=False,
                    progress_hook=None, **kwargs):
-    # type: (object, object, object, object, object) -> object
-    # type: (object, object, object, object, object) -> object
     """ Analyze all tasks until we find a fixed point
 
         system -- the system to analyze
@@ -680,7 +686,7 @@ def analyze_system(system, task_results=None, only_dependent_tasks=False,
         for t in analysis_state.analysisOrder:
             if t not in analysis_state.dirtyTasks:
                 continue
-            start = time.clock()
+            start = time.process_time()
 
             analysis_state.dirtyTasks.remove(t)
 
@@ -718,7 +724,7 @@ def analyze_system(system, task_results=None, only_dependent_tasks=False,
                 analysis_state._mark_dependents_dirty(t)
                 break  # break the for loop to restart iteration
 
-            elapsed = (time.clock() - start)
+            elapsed = (time.process_time() - start)
             logger.debug("iteration: %d, time: %.1f task: %s wcrt: %f dirty: %d"
                          % (iteration, elapsed, t.name,
                             task_results[t].wcrt,

@@ -72,7 +72,7 @@ Later versions should also work but have not been verified to work properly.
 
 - **Amalthea2PyCPA** [[link](https://git.ida.ing.tu-bs.de/kaige/Amalthea2PyCPA "project repository")]
 
-  Amalthea Parser
+  Amalthea Parser (optional, only needed if Amalthea system models shall be used for analysis in TORO)
 
   
 
@@ -83,7 +83,7 @@ Note: **argparse**, **dill** and **NetworkX** will be installed automatically wh
 Clone out the git code repository [[link](https://git.ida.ing.tu-bs.de/kaige/Amalthea2PyCPA)].
 
 ```bash
-$ git clone https://git.ida.ing.tu-bs.de/alexb/Wirkketten_Tool/src/branch/TORO_alexb
+$ git clone https://git.ida.ing.tu-bs.de/TORO/Wirkketten_Tool.git
 ```
 
 For general usage:

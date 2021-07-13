@@ -9,7 +9,9 @@ RESULTS_LOG.txt
 *_intervals.svg
 *_tree.svg
 Results.svg
-
+output/
+#toro_project/tests/perf_results/res_*.pkl
+TORO/tests/perf_results/*.prof
 
 # ---> Eclipse
 
@@ -24,6 +26,9 @@ local.properties
 .settings/
 .loadpath
 .recommenders
+
+# vs code stuff
+.vscode
 
 # External tool builders
 .externalToolBuilders/
@@ -185,3 +190,11 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# sphinx documentatio build dir contents
+/documentation/sphinx/build/
+/documentation/sphinx/source/contents/README.md
+
+*results.csv
+
+.project
+*.aird

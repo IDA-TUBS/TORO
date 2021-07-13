@@ -1,1 +1,0 @@
-To generate the Sphinx documentation execute 'make html'.

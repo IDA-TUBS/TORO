@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<am:Amalthea xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:am="http://app4mc.eclipse.org/amalthea/0.9.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <swModel>
+    <tasks xmi:id="LET_T1?type=Task" name="LET_T1" stimuli="Periodic10ms_2?type=PeriodicStimulus" preemption="preemptive" multipleTaskActivationLimit="0"/>
+    <tasks xmi:id="LET_T4?type=Task" name="LET_T4" stimuli="Periodic20ms_2?type=PeriodicStimulus" preemption="preemptive" multipleTaskActivationLimit="0"/>
+    <tasks xmi:id="LET_T5?type=Task" name="LET_T5" stimuli="Periodic15ms_1?type=PeriodicStimulus" preemption="preemptive" multipleTaskActivationLimit="0"/>
+    <tasks xmi:id="LET_T7?type=Task" name="LET_T7" stimuli="Periodic5ms?type=PeriodicStimulus" preemption="preemptive" multipleTaskActivationLimit="0"/>
+    <tasks xmi:id="LET_T9?type=Task" name="LET_T9" stimuli="Periodic10ms_1?type=PeriodicStimulus" preemption="preemptive" multipleTaskActivationLimit="0"/>
+    <tasks xmi:id="BET_T1?type=Task" name="BET_T1" stimuli="Periodic5ms?type=PeriodicStimulus" preemption="preemptive" multipleTaskActivationLimit="0">
+      <activityGraph>
+        <items xsi:type="am:Ticks">
+          <default xsi:type="am:DiscreteValueConstant" value="100000"/>
+        </items>
+      </activityGraph>
+    </tasks>
+    <tasks xmi:id="BET_T2?type=Task" name="BET_T2" stimuli="Periodic10ms?type=PeriodicStimulus" preemption="preemptive" multipleTaskActivationLimit="0">
+      <activityGraph>
+        <items xsi:type="am:Ticks">
+          <default xsi:type="am:DiscreteValueConstant" value="100000"/>
+        </items>
+      </activityGraph>
+    </tasks>
+    <tasks xmi:id="BET_T3?type=Task" name="BET_T3" stimuli="Periodic15ms?type=PeriodicStimulus" preemption="preemptive" multipleTaskActivationLimit="0">
+      <activityGraph>
+        <items xsi:type="am:Ticks">
+          <default xsi:type="am:DiscreteValueConstant" value="300000"/>
+        </items>
+      </activityGraph>
+    </tasks>
+    <tasks xmi:id="BET_T4?type=Task" name="BET_T4" stimuli="Periodic5ms?type=PeriodicStimulus" preemption="preemptive" multipleTaskActivationLimit="0">
+      <activityGraph>
+        <items xsi:type="am:Ticks">
+          <default xsi:type="am:DiscreteValueConstant" value="100000"/>
+        </items>
+      </activityGraph>
+    </tasks>
+    <tasks xmi:id="BET_T5?type=Task" name="BET_T5" stimuli="Periodic10ms?type=PeriodicStimulus" preemption="preemptive" multipleTaskActivationLimit="0">
+      <activityGraph>
+        <items xsi:type="am:Ticks">
+          <default xsi:type="am:DiscreteValueConstant" value="200000"/>
+        </items>
+      </activityGraph>
+    </tasks>
+    <tasks xmi:id="BET_T6?type=Task" name="BET_T6" stimuli="Periodic20ms?type=PeriodicStimulus" preemption="preemptive" multipleTaskActivationLimit="0">
+      <activityGraph>
+        <items xsi:type="am:Ticks">
+          <default xsi:type="am:DiscreteValueConstant" value="400000"/>
+        </items>
+      </activityGraph>
+    </tasks>
+    <tasks xmi:id="TaskWithLabel1?type=Task" name="TaskWithLabel1" stimuli="Periodic5ms?type=PeriodicStimulus" preemption="preemptive" multipleTaskActivationLimit="0">
+      <customProperties key="semantic">
+        <value xsi:type="am:StringObject" value="bet"/>
+      </customProperties>
+      <activityGraph>
+        <items xsi:type="am:Ticks">
+          <default xsi:type="am:DiscreteValueConstant" value="100000"/>
+        </items>
+        <items xsi:type="am:LabelAccess" data="Label2?type=Label" access="write" implementation="implicit"/>
+      </activityGraph>
+    </tasks>
+    <tasks xmi:id="TaskWithLabel2?type=Task" name="TaskWithLabel2" stimuli="Periodic10ms?type=PeriodicStimulus" preemption="preemptive" multipleTaskActivationLimit="0">
+      <activityGraph>
+        <items xsi:type="am:LabelAccess" data="Label4?type=Label" access="read" implementation="implicit"/>
+        <items xsi:type="am:Ticks">
+          <default xsi:type="am:DiscreteValueConstant" value="100000"/>
+        </items>
+        <items xsi:type="am:LabelAccess" data="Label5?type=Label" access="write" implementation="implicit"/>
+      </activityGraph>
+    </tasks>
+    <tasks xmi:id="TaskWithLabel3?type=Task" name="TaskWithLabel3" stimuli="Periodic15ms?type=PeriodicStimulus" preemption="preemptive" multipleTaskActivationLimit="0">
+      <activityGraph>
+        <items xsi:type="am:LabelAccess" data="Label2?type=Label" access="read" implementation="implicit"/>
+        <items xsi:type="am:LabelAccess" data="Label1?type=Label" access="read" implementation="implicit"/>
+        <items xsi:type="am:Ticks">
+          <default xsi:type="am:DiscreteValueConstant" value="100000"/>
+        </items>
+        <items xsi:type="am:LabelAccess" data="Label3?type=Label" access="write" implementation="implicit"/>
+        <items xsi:type="am:LabelAccess" data="Label6?type=Label" access="write" implementation="implicit"/>
+      </activityGraph>
+    </tasks>
+    <tasks xmi:id="TaskWithLabel4?type=Task" name="TaskWithLabel4" stimuli="Periodic20ms?type=PeriodicStimulus" preemption="preemptive" multipleTaskActivationLimit="0">
+      <customProperties key="semantic">
+        <value xsi:type="am:StringObject" value="bet"/>
+      </customProperties>
+      <activityGraph>
+        <items xsi:type="am:LabelAccess" data="Label3?type=Label" access="read" implementation="implicit"/>
+        <items xsi:type="am:Ticks">
+          <default xsi:type="am:DiscreteValueConstant" value="100000"/>
+        </items>
+        <items xsi:type="am:LabelAccess" data="Label4?type=Label" access="write" implementation="implicit"/>
+      </activityGraph>
+    </tasks>
+    <tasks xmi:id="TaskWithLabel5?type=Task" name="TaskWithLabel5" stimuli="Periodic25ms?type=PeriodicStimulus" preemption="preemptive" multipleTaskActivationLimit="0">
+      <customProperties key="semantic">
+        <value xsi:type="am:StringObject" value="bet"/>
+      </customProperties>
+      <activityGraph>
+        <items xsi:type="am:Ticks">
+          <default xsi:type="am:DiscreteValueConstant" value="100000"/>
+        </items>
+        <items xsi:type="am:LabelAccess" data="Label1?type=Label" access="write" implementation="implicit"/>
+      </activityGraph>
+    </tasks>
+    <labels xmi:id="Label1?type=Label" name="Label1" displayName="" constant="false" bVolatile="false"/>
+    <labels xmi:id="Label2?type=Label" name="Label2" displayName="" constant="false" bVolatile="false"/>
+    <labels xmi:id="Label3?type=Label" name="Label3" displayName="" constant="false" bVolatile="false"/>
+    <labels xmi:id="Label4?type=Label" name="Label4" displayName="" constant="false" bVolatile="false"/>
+    <labels xmi:id="Label5?type=Label" name="Label5" displayName="" constant="false" bVolatile="false"/>
+    <labels xmi:id="Label6?type=Label" name="Label6" displayName="" constant="false" bVolatile="false"/>
+    <activations xsi:type="am:SporadicActivation" xmi:id="no-name?type=SporadicActivation" name=""/>
+    <processChains xmi:id="1111?type=ProcessChain" name="1111" processes="BET_T4?type=Task BET_T6?type=Task"/>
+  </swModel>
+  <hwModel>
+    <definitions xsi:type="am:ProcessingUnitDefinition" xmi:id="CoreType1?type=ProcessingUnitDefinition" name="CoreType1" puType="CPU" features="IPC/IPC_max?type=HwFeature IPC/IPC_min?type=HwFeature"/>
+    <definitions xsi:type="am:ProcessingUnitDefinition" xmi:id="CoreType2?type=ProcessingUnitDefinition" name="CoreType2" puType="CPU" features="IPC/IPC_max?type=HwFeature IPC/IPC_min?type=HwFeature"/>
+    <featureCategories xmi:id="IPC?type=HwFeatureCategory" name="IPC" featureType="performance">
+      <features xmi:id="IPC/IPC_min?type=HwFeature" name="IPC_min" value="1.0"/>
+      <features xmi:id="IPC/IPC_max?type=HwFeature" name="IPC_max" value="1.5"/>
+    </featureCategories>
+    <structures xmi:id="System?type=HwStructure" name="System" structureType="System">
+      <structures xmi:id="ECU1?type=HwStructure" name="ECU1" structureType="ECU">
+        <modules xsi:type="am:ProcessingUnit" xmi:id="Core0_0?type=ProcessingUnit" name="Core0_0" frequencyDomain="FrequencyCoreType1?type=FrequencyDomain" definition="CoreType1?type=ProcessingUnitDefinition"/>
+        <modules xsi:type="am:ProcessingUnit" xmi:id="Core0_1?type=ProcessingUnit" name="Core0_1" frequencyDomain="FrequencyCoreType1?type=FrequencyDomain" definition="CoreType1?type=ProcessingUnitDefinition"/>
+        <modules xsi:type="am:ProcessingUnit" xmi:id="Core0_2?type=ProcessingUnit" name="Core0_2" frequencyDomain="FrequencyCoreType1?type=FrequencyDomain" definition="CoreType1?type=ProcessingUnitDefinition"/>
+      </structures>
+      <structures xmi:id="ECU2?type=HwStructure" name="ECU2" structureType="ECU">
+        <modules xsi:type="am:ProcessingUnit" xmi:id="Core1_0?type=ProcessingUnit" name="Core1_0" frequencyDomain="FrequencyCoreType2?type=FrequencyDomain" definition="CoreType2?type=ProcessingUnitDefinition"/>
+        <modules xsi:type="am:ProcessingUnit" xmi:id="Core1_1?type=ProcessingUnit" name="Core1_1" frequencyDomain="FrequencyCoreType2?type=FrequencyDomain" definition="CoreType2?type=ProcessingUnitDefinition"/>
+      </structures>
+      <structures xmi:id="ECU3?type=HwStructure" name="ECU3" structureType="ECU">
+        <modules xsi:type="am:ProcessingUnit" xmi:id="Core2_0?type=ProcessingUnit" name="Core2_0" frequencyDomain="FrequencyCoreType2?type=FrequencyDomain" definition="CoreType2?type=ProcessingUnitDefinition"/>
+        <modules xsi:type="am:ProcessingUnit" xmi:id="Core2_1?type=ProcessingUnit" name="Core2_1" frequencyDomain="FrequencyCoreType2?type=FrequencyDomain" definition="CoreType2?type=ProcessingUnitDefinition"/>
+        <modules xsi:type="am:ProcessingUnit" xmi:id="Core2_2?type=ProcessingUnit" name="Core2_2" frequencyDomain="FrequencyCoreType2?type=FrequencyDomain" definition="CoreType2?type=ProcessingUnitDefinition"/>
+        <modules xsi:type="am:ProcessingUnit" xmi:id="Core2_3?type=ProcessingUnit" name="Core2_3" frequencyDomain="FrequencyCoreType2?type=FrequencyDomain" definition="CoreType2?type=ProcessingUnitDefinition"/>
+      </structures>
+    </structures>
+    <domains xsi:type="am:FrequencyDomain" xmi:id="FrequencyCoreType1?type=FrequencyDomain" name="FrequencyCoreType1" clockGating="false">
+      <defaultValue value="120.0" unit="MHz"/>
+    </domains>
+    <domains xsi:type="am:FrequencyDomain" xmi:id="FrequencyCoreType2?type=FrequencyDomain" name="FrequencyCoreType2" clockGating="false">
+      <defaultValue value="100.0" unit="MHz"/>
+    </domains>
+    <domains xsi:type="am:FrequencyDomain" xmi:id="NetworkFrequency?type=FrequencyDomain" name="NetworkFrequency" clockGating="false">
+      <defaultValue value="1.0" unit="GHz"/>
+    </domains>
+  </hwModel>
+  <osModel>
+    <operatingSystems name="OS_ECU1">
+      <taskSchedulers xmi:id="SPPSchedulerECU1?type=TaskScheduler" name="SPPSchedulerECU1">
+        <schedulingAlgorithm xsi:type="am:FixedPriorityPreemptive"/>
+      </taskSchedulers>
+    </operatingSystems>
+    <operatingSystems name="OS_ECU2">
+      <taskSchedulers xmi:id="SPPSchedulerECU2?type=TaskScheduler" name="SPPSchedulerECU2">
+        <schedulingAlgorithm xsi:type="am:FixedPriorityPreemptive"/>
+      </taskSchedulers>
+    </operatingSystems>
+    <operatingSystems name="OS_ECU3">
+      <taskSchedulers xmi:id="SPPSchedulerECU3?type=TaskScheduler" name="SPPSchedulerECU3">
+        <schedulingAlgorithm xsi:type="am:FixedPriorityPreemptive"/>
+      </taskSchedulers>
+      <taskSchedulers xmi:id="SPNPSchedulerECU3?type=TaskScheduler" name="SPNPSchedulerECU3">
+        <schedulingAlgorithm xsi:type="am:UserSpecificSchedulingAlgorithm">
+          <customProperties key="type">
+            <value xsi:type="am:StringObject" value="spnp"/>
+          </customProperties>
+        </schedulingAlgorithm>
+      </taskSchedulers>
+    </operatingSystems>
+    <operatingSystems name="NetworkScheduler">
+      <taskSchedulers xmi:id="NetworkScheduler?type=TaskScheduler" name="NetworkScheduler">
+        <schedulingAlgorithm xsi:type="am:UserSpecificSchedulingAlgorithm">
+          <customProperties key="type">
+            <value xsi:type="am:StringObject" value="networkScheduler"/>
+          </customProperties>
+        </schedulingAlgorithm>
+      </taskSchedulers>
+    </operatingSystems>
+  </osModel>
+  <stimuliModel>
+    <stimuli xsi:type="am:PeriodicStimulus" xmi:id="Periodic5ms?type=PeriodicStimulus" name="Periodic5ms">
+      <recurrence value="5" unit="ms"/>
+      <offset value="0" unit="ms"/>
+    </stimuli>
+    <stimuli xsi:type="am:PeriodicStimulus" xmi:id="Periodic5ms_1?type=PeriodicStimulus" name="Periodic5ms_1">
+      <recurrence value="5" unit="ms"/>
+      <offset value="1" unit="ms"/>
+    </stimuli>
+    <stimuli xsi:type="am:PeriodicStimulus" xmi:id="Periodic10ms?type=PeriodicStimulus" name="Periodic10ms">
+      <recurrence value="10" unit="ms"/>
+      <offset value="0" unit="ms"/>
+    </stimuli>
+    <stimuli xsi:type="am:PeriodicStimulus" xmi:id="Periodic10ms_1?type=PeriodicStimulus" name="Periodic10ms_1">
+      <recurrence value="10" unit="ms"/>
+      <offset value="1" unit="ms"/>
+    </stimuli>
+    <stimuli xsi:type="am:PeriodicStimulus" xmi:id="Periodic10ms_2?type=PeriodicStimulus" name="Periodic10ms_2">
+      <recurrence value="10" unit="ms"/>
+      <offset value="2" unit="ms"/>
+    </stimuli>
+    <stimuli xsi:type="am:PeriodicStimulus" xmi:id="Periodic15ms?type=PeriodicStimulus" name="Periodic15ms">
+      <recurrence value="15" unit="ms"/>
+      <offset value="0" unit="ms"/>
+    </stimuli>
+    <stimuli xsi:type="am:PeriodicStimulus" xmi:id="Periodic15ms_1?type=PeriodicStimulus" name="Periodic15ms_1">
+      <recurrence value="15" unit="ms"/>
+      <offset value="1" unit="ms"/>
+    </stimuli>
+    <stimuli xsi:type="am:PeriodicStimulus" xmi:id="Periodic15ms_3?type=PeriodicStimulus" name="Periodic15ms_3">
+      <recurrence value="15" unit="ms"/>
+      <offset value="3" unit="ms"/>
+    </stimuli>
+    <stimuli xsi:type="am:PeriodicStimulus" xmi:id="Periodic20ms?type=PeriodicStimulus" name="Periodic20ms">
+      <recurrence value="20" unit="ms"/>
+      <offset value="0" unit="ms"/>
+    </stimuli>
+    <stimuli xsi:type="am:PeriodicStimulus" xmi:id="Periodic20ms_2?type=PeriodicStimulus" name="Periodic20ms_2">
+      <recurrence value="20" unit="ms"/>
+      <offset value="2" unit="ms"/>
+    </stimuli>
+    <stimuli xsi:type="am:PeriodicStimulus" xmi:id="Periodic20ms_3?type=PeriodicStimulus" name="Periodic20ms_3">
+      <recurrence value="20" unit="ms"/>
+      <offset value="3" unit="ms"/>
+    </stimuli>
+    <stimuli xsi:type="am:PeriodicStimulus" xmi:id="Periodic25ms?type=PeriodicStimulus" name="Periodic25ms">
+      <recurrence value="25" unit="ms"/>
+      <offset value="0" unit="ms"/>
+    </stimuli>
+    <stimuli xsi:type="am:PeriodicStimulus" xmi:id="Periodic100ms?type=PeriodicStimulus" name="Periodic100ms">
+      <recurrence value="100" unit="ms"/>
+    </stimuli>
+    <stimuli xsi:type="am:RelativePeriodicStimulus" xmi:id="SporadicStimulus5_10ms?type=RelativePeriodicStimulus" name="SporadicStimulus5_10ms">
+      <nextOccurrence xsi:type="am:TimeBoundaries" samplingType="WorstCase">
+        <lowerBound value="5" unit="ms"/>
+        <upperBound value="10" unit="ms"/>
+      </nextOccurrence>
+    </stimuli>
+  </stimuliModel>
+  <eventModel>
+    <events xsi:type="am:ProcessEvent" xmi:id="ChainEvent_LET_T1?type=ProcessEvent" name="ChainEvent_LET_T1" description="" entity="LET_T1?type=Task"/>
+    <events xsi:type="am:ProcessEvent" xmi:id="ChainEvent_LET_T4?type=ProcessEvent" name="ChainEvent_LET_T4" entity="LET_T4?type=Task"/>
+    <events xsi:type="am:ProcessEvent" xmi:id="ChainEvent_LET_T5?type=ProcessEvent" name="ChainEvent_LET_T5" entity="LET_T5?type=Task"/>
+    <events xsi:type="am:ProcessEvent" xmi:id="ChainEvent_LET_T7?type=ProcessEvent" name="ChainEvent_LET_T7" entity="LET_T7?type=Task"/>
+    <events xsi:type="am:ProcessEvent" xmi:id="ChainEvent_LET_T9?type=ProcessEvent" name="ChainEvent_LET_T9" entity="LET_T9?type=Task"/>
+    <events xsi:type="am:ProcessEvent" xmi:id="ChainEvent_BET_T1?type=ProcessEvent" name="ChainEvent_BET_T1" entity="BET_T1?type=Task"/>
+    <events xsi:type="am:ProcessEvent" xmi:id="ChainEvent_BET_T2?type=ProcessEvent" name="ChainEvent_BET_T2" entity="BET_T2?type=Task"/>
+    <events xsi:type="am:ProcessEvent" xmi:id="ChainEvent_BET_T3?type=ProcessEvent" name="ChainEvent_BET_T3" entity="BET_T3?type=Task"/>
+    <events xsi:type="am:ProcessEvent" xmi:id="ChainEvent_BET_T4?type=ProcessEvent" name="ChainEvent_BET_T4" entity="BET_T4?type=Task"/>
+    <events xsi:type="am:ProcessEvent" xmi:id="ChainEvent_BET_T5?type=ProcessEvent" name="ChainEvent_BET_T5" entity="BET_T5?type=Task"/>
+    <events xsi:type="am:ProcessEvent" xmi:id="ChainEvent_BET_T6?type=ProcessEvent" name="ChainEvent_BET_T6" entity="BET_T1?type=Task"/>
+    <events xsi:type="am:LabelEvent" xmi:id="WriteLabel1?type=LabelEvent" name="WriteLabel1" entity="Label1?type=Label" process="TaskWithLabel5?type=Task"/>
+    <events xsi:type="am:LabelEvent" xmi:id="ReadLabel1?type=LabelEvent" name="ReadLabel1" entity="Label1?type=Label" process="TaskWithLabel3?type=Task"/>
+    <events xsi:type="am:LabelEvent" xmi:id="WriteLabel2?type=LabelEvent" name="WriteLabel2" entity="Label2?type=Label" process="TaskWithLabel1?type=Task"/>
+    <events xsi:type="am:LabelEvent" xmi:id="WriteLabel3?type=LabelEvent" name="WriteLabel3" entity="Label3?type=Label" process="TaskWithLabel3?type=Task"/>
+    <events xsi:type="am:LabelEvent" xmi:id="ReadLabel3?type=LabelEvent" name="ReadLabel3" entity="Label3?type=Label" process="TaskWithLabel4?type=Task"/>
+    <events xsi:type="am:LabelEvent" xmi:id="WriteLabel4?type=LabelEvent" name="WriteLabel4" entity="Label4?type=Label" process="TaskWithLabel4?type=Task"/>
+    <events xsi:type="am:LabelEvent" xmi:id="ReadLabel4?type=LabelEvent" name="ReadLabel4" entity="Label4?type=Label" process="TaskWithLabel2?type=Task"/>
+    <events xsi:type="am:LabelEvent" xmi:id="WriteLabel5?type=LabelEvent" name="WriteLabel5" entity="Label5?type=Label" process="TaskWithLabel2?type=Task"/>
+    <events xsi:type="am:LabelEvent" xmi:id="WriteLabel6?type=LabelEvent" name="WriteLabel6" entity="Label6?type=Label" process="TaskWithLabel3?type=Task"/>
+  </eventModel>
+  <constraintsModel>
+    <eventChains xmi:id="LETchain1?type=EventChain" name="LETchain1" stimulus="ChainEvent_LET_T1?type=ProcessEvent" response="ChainEvent_LET_T9?type=ProcessEvent" itemType="sequence" minItemsCompleted="1">
+      <items xsi:type="am:EventChainContainer">
+        <eventChain name="LETchain1_sub1" stimulus="ChainEvent_LET_T1?type=ProcessEvent" response="ChainEvent_LET_T5?type=ProcessEvent" itemType="sequence" minItemsCompleted="1"/>
+      </items>
+      <items xsi:type="am:EventChainContainer">
+        <eventChain name="LETchain1_sub2" stimulus="ChainEvent_LET_T5?type=ProcessEvent" response="ChainEvent_LET_T7?type=ProcessEvent" itemType="sequence" minItemsCompleted="1"/>
+      </items>
+      <items xsi:type="am:EventChainContainer">
+        <eventChain name="LETchain1_sub3" stimulus="ChainEvent_LET_T7?type=ProcessEvent" response="ChainEvent_LET_T9?type=ProcessEvent" minItemsCompleted="1"/>
+      </items>
+    </eventChains>
+    <eventChains xmi:id="LETchain2?type=EventChain" name="LETchain2" stimulus="ChainEvent_LET_T4?type=ProcessEvent" response="ChainEvent_LET_T1?type=ProcessEvent" itemType="sequence" minItemsCompleted="1">
+      <items xsi:type="am:EventChainContainer">
+        <eventChain name="LETchain2_sub1" stimulus="ChainEvent_LET_T4?type=ProcessEvent" response="ChainEvent_LET_T1?type=ProcessEvent" itemType="sequence" minItemsCompleted="1"/>
+      </items>
+    </eventChains>
+    <eventChains xmi:id="BETchain1?type=EventChain" name="BETchain1" stimulus="ChainEvent_BET_T2?type=ProcessEvent" response="ChainEvent_BET_T1?type=ProcessEvent" itemType="sequence" minItemsCompleted="1">
+      <items xsi:type="am:EventChainContainer">
+        <eventChain name="BETchain1_sub1" stimulus="ChainEvent_BET_T1?type=ProcessEvent" response="ChainEvent_BET_T3?type=ProcessEvent" itemType="sequence" minItemsCompleted="1"/>
+      </items>
+      <items xsi:type="am:EventChainContainer">
+        <eventChain name="BETchain1_sub2" stimulus="ChainEvent_BET_T3?type=ProcessEvent" response="ChainEvent_BET_T2?type=ProcessEvent" itemType="sequence" minItemsCompleted="1"/>
+      </items>
+    </eventChains>
+    <eventChains xmi:id="BETchain2?type=EventChain" name="BETchain2" stimulus="ChainEvent_BET_T4?type=ProcessEvent" response="ChainEvent_BET_T1?type=ProcessEvent" itemType="sequence" minItemsCompleted="1">
+      <items xsi:type="am:EventChainContainer">
+        <eventChain name="BETchain1_sub1" stimulus="ChainEvent_BET_T1?type=ProcessEvent" response="ChainEvent_BET_T4?type=ProcessEvent" itemType="sequence" minItemsCompleted="1"/>
+      </items>
+    </eventChains>
+    <eventChains xmi:id="LabelChain1?type=EventChain" name="LabelChain1" stimulus="WriteLabel2?type=LabelEvent" response="WriteLabel5?type=LabelEvent" itemType="sequence" minItemsCompleted="1">
+      <items xsi:type="am:EventChainContainer">
+        <eventChain name="sub_chain1" stimulus="WriteLabel1?type=LabelEvent" response="ReadLabel1?type=LabelEvent" itemType="sequence" minItemsCompleted="1"/>
+      </items>
+      <items xsi:type="am:EventChainContainer">
+        <eventChain name="sub_chain2" stimulus="WriteLabel3?type=LabelEvent" response="ReadLabel3?type=LabelEvent" itemType="sequence" minItemsCompleted="1"/>
+      </items>
+      <items xsi:type="am:EventChainContainer">
+        <eventChain name="sub_chain3" stimulus="WriteLabel4?type=LabelEvent" response="ReadLabel4?type=LabelEvent" itemType="sequence" minItemsCompleted="1"/>
+      </items>
+      <items xsi:type="am:EventChainContainer">
+        <eventChain name="sub_chain4" stimulus="ReadLabel4?type=LabelEvent" response="WriteLabel5?type=LabelEvent" itemType="sequence" minItemsCompleted="1"/>
+      </items>
+    </eventChains>
+    <eventChains xmi:id="LabelChain2?type=EventChain" name="LabelChain2" stimulus="WriteLabel1?type=LabelEvent" response="WriteLabel6?type=LabelEvent" itemType="sequence" minItemsCompleted="1">
+      <items xsi:type="am:EventChainContainer">
+        <eventChain name="sub_chain1" stimulus="WriteLabel1?type=LabelEvent" response="WriteLabel6?type=LabelEvent" itemType="sequence" minItemsCompleted="1"/>
+      </items>
+    </eventChains>
+    <timingConstraints xsi:type="am:EventChainLatencyConstraint" xmi:id="Deadline_LETchain1?type=EventChainLatencyConstraint" name="Deadline_LETchain1" scope="LETchain1?type=EventChain" type="Age">
+      <maximum value="45" unit="ms"/>
+    </timingConstraints>
+    <timingConstraints xsi:type="am:EventChainLatencyConstraint" xmi:id="Deadline_LETchain2?type=EventChainLatencyConstraint" name="Deadline_LETchain2" scope="LETchain2?type=EventChain" type="Age">
+      <maximum value="35" unit="ms"/>
+    </timingConstraints>
+    <timingConstraints xsi:type="am:EventChainLatencyConstraint" xmi:id="Deadline_BETchain1?type=EventChainLatencyConstraint" name="Deadline_BETchain1" scope="BETchain1?type=EventChain" type="Age">
+      <maximum value="50" unit="ms"/>
+    </timingConstraints>
+    <timingConstraints xsi:type="am:EventChainLatencyConstraint" xmi:id="deadline_LabelChain1?type=EventChainLatencyConstraint" name="deadline_LabelChain1" scope="LabelChain1?type=EventChain" type="Age">
+      <maximum value="20" unit="ms"/>
+    </timingConstraints>
+    <timingConstraints xsi:type="am:DelayConstraint" xmi:id="LabelChainDelayConst1?type=DelayConstraint" name="LabelChainDelayConst1" mappingType="Reaction" source="WriteLabel2?type=LabelEvent" target="WriteLabel5?type=LabelEvent">
+      <upper value="20" unit="ms"/>
+    </timingConstraints>
+    <timingConstraints xsi:type="am:DelayConstraint" xmi:id="LabelChainDelayConst2?type=DelayConstraint" name="LabelChainDelayConst2" mappingType="Reaction" source="WriteLabel1?type=LabelEvent" target="WriteLabel6?type=LabelEvent">
+      <upper value="10" unit="ms"/>
+    </timingConstraints>
+    <requirements xsi:type="am:ProcessRequirement" name="deadline_LET_T1" severity="Critical" process="LET_T1?type=Task">
+      <limit xsi:type="am:TimeRequirementLimit" limitType="UpperLimit" metric="ResponseTime">
+        <limitValue value="5" unit="ms"/>
+      </limit>
+    </requirements>
+    <requirements xsi:type="am:ProcessRequirement" name="deadline_LET_T4" severity="Critical" process="LET_T4?type=Task">
+      <limit xsi:type="am:TimeRequirementLimit" limitType="UpperLimit" metric="ResponseTime">
+        <limitValue value="15" unit="ms"/>
+      </limit>
+    </requirements>
+    <requirements xsi:type="am:ProcessRequirement" name="deadline_LET_T5" severity="Critical" process="LET_T5?type=Task">
+      <limit xsi:type="am:TimeRequirementLimit" limitType="UpperLimit" metric="ResponseTime">
+        <limitValue value="10" unit="ms"/>
+      </limit>
+    </requirements>
+    <requirements xsi:type="am:ProcessRequirement" name="deadline_LET_T7" severity="Critical" process="LET_T7?type=Task">
+      <limit xsi:type="am:TimeRequirementLimit" limitType="UpperLimit" metric="ResponseTime">
+        <limitValue value="3" unit="ms"/>
+      </limit>
+    </requirements>
+    <requirements xsi:type="am:ProcessRequirement" name="deadline_LET_T9" severity="Critical" process="LET_T4?type=Task">
+      <limit xsi:type="am:TimeRequirementLimit" limitType="UpperLimit" metric="ResponseTime">
+        <limitValue value="5" unit="ms"/>
+      </limit>
+    </requirements>
+    <requirements xsi:type="am:ProcessRequirement" name="deadline_BET_T1" severity="Critical" process="BET_T1?type=Task">
+      <limit xsi:type="am:TimeRequirementLimit" limitType="UpperLimit" metric="ResponseTime">
+        <limitValue value="5" unit="ms"/>
+      </limit>
+    </requirements>
+    <requirements xsi:type="am:ProcessRequirement" name="deadline_BET_T2" severity="Critical" process="BET_T2?type=Task">
+      <limit xsi:type="am:TimeRequirementLimit" limitType="UpperLimit" metric="ResponseTime">
+        <limitValue value="10" unit="ms"/>
+      </limit>
+    </requirements>
+    <requirements xsi:type="am:ProcessRequirement" name="deadline_BET_T3" severity="Critical" process="BET_T3?type=Task">
+      <limit xsi:type="am:TimeRequirementLimit" limitType="UpperLimit" metric="ResponseTime">
+        <limitValue value="15" unit="ms"/>
+      </limit>
+    </requirements>
+    <requirements xsi:type="am:ProcessRequirement" name="deadline_BET_T4" severity="Critical" process="BET_T4?type=Task">
+      <limit xsi:type="am:TimeRequirementLimit" limitType="UpperLimit" metric="ResponseTime">
+        <limitValue value="5" unit="ms"/>
+      </limit>
+    </requirements>
+    <requirements xsi:type="am:ProcessRequirement" name="deadline_BET_T5" severity="Critical" process="BET_T5?type=Task">
+      <limit xsi:type="am:TimeRequirementLimit" limitType="UpperLimit" metric="ResponseTime">
+        <limitValue value="10" unit="ms"/>
+      </limit>
+    </requirements>
+    <requirements xsi:type="am:ProcessRequirement" name="deadline_BET_T6" severity="Critical" process="BET_T6?type=Task">
+      <limit xsi:type="am:TimeRequirementLimit" limitType="UpperLimit" metric="ResponseTime">
+        <limitValue value="20" unit="ms"/>
+      </limit>
+    </requirements>
+  </constraintsModel>
+  <mappingModel>
+    <schedulerAllocation scheduler="SPPSchedulerECU1?type=TaskScheduler" responsibility="Core0_0?type=ProcessingUnit Core0_1?type=ProcessingUnit Core0_2?type=ProcessingUnit" executingPU="Core0_0?type=ProcessingUnit"/>
+    <schedulerAllocation scheduler="SPPSchedulerECU2?type=TaskScheduler" responsibility="Core1_0?type=ProcessingUnit Core1_1?type=ProcessingUnit" executingPU="Core1_0?type=ProcessingUnit"/>
+    <schedulerAllocation scheduler="SPPSchedulerECU3?type=TaskScheduler" responsibility="Core2_0?type=ProcessingUnit Core2_2?type=ProcessingUnit Core2_3?type=ProcessingUnit" executingPU="Core2_0?type=ProcessingUnit"/>
+    <schedulerAllocation scheduler="SPNPSchedulerECU3?type=TaskScheduler" responsibility="Core2_1?type=ProcessingUnit" executingPU="Core2_1?type=ProcessingUnit"/>
+    <schedulerAllocation scheduler="NetworkScheduler?type=TaskScheduler"/>
+    <taskAllocation task="LET_T1?type=Task" scheduler="SPPSchedulerECU1?type=TaskScheduler" affinity="Core0_0?type=ProcessingUnit"/>
+    <taskAllocation task="LET_T4?type=Task" scheduler="SPPSchedulerECU1?type=TaskScheduler" affinity="Core0_0?type=ProcessingUnit"/>
+    <taskAllocation task="LET_T5?type=Task" scheduler="SPPSchedulerECU1?type=TaskScheduler" affinity="Core0_0?type=ProcessingUnit"/>
+    <taskAllocation task="LET_T7?type=Task" scheduler="SPPSchedulerECU1?type=TaskScheduler" affinity="Core0_0?type=ProcessingUnit"/>
+    <taskAllocation task="LET_T9?type=Task" scheduler="SPPSchedulerECU1?type=TaskScheduler" affinity="Core0_0?type=ProcessingUnit"/>
+    <taskAllocation scheduler="SPPSchedulerECU1?type=TaskScheduler" affinity="Core0_0?type=ProcessingUnit"/>
+    <taskAllocation task="BET_T1?type=Task" scheduler="SPPSchedulerECU3?type=TaskScheduler" affinity="Core2_0?type=ProcessingUnit">
+      <schedulingParameters priority="1"/>
+    </taskAllocation>
+    <taskAllocation task="BET_T2?type=Task" scheduler="SPNPSchedulerECU3?type=TaskScheduler" affinity="Core2_1?type=ProcessingUnit">
+      <schedulingParameters priority="2"/>
+    </taskAllocation>
+    <taskAllocation task="BET_T3?type=Task" scheduler="SPPSchedulerECU3?type=TaskScheduler" affinity="Core2_0?type=ProcessingUnit">
+      <schedulingParameters priority="3"/>
+    </taskAllocation>
+    <taskAllocation task="BET_T4?type=Task" scheduler="SPNPSchedulerECU3?type=TaskScheduler" affinity="Core2_1?type=ProcessingUnit">
+      <schedulingParameters priority="1"/>
+    </taskAllocation>
+    <taskAllocation task="BET_T5?type=Task" scheduler="SPPSchedulerECU3?type=TaskScheduler" affinity="Core2_0?type=ProcessingUnit">
+      <schedulingParameters priority="2"/>
+    </taskAllocation>
+    <taskAllocation task="BET_T6?type=Task" scheduler="SPNPSchedulerECU3?type=TaskScheduler" affinity="Core2_1?type=ProcessingUnit">
+      <schedulingParameters priority="3"/>
+    </taskAllocation>
+    <taskAllocation task="TaskWithLabel1?type=Task" scheduler="SPPSchedulerECU2?type=TaskScheduler" affinity="Core2_2?type=ProcessingUnit">
+      <schedulingParameters priority="1"/>
+    </taskAllocation>
+    <taskAllocation task="TaskWithLabel2?type=Task" scheduler="SPPSchedulerECU2?type=TaskScheduler" affinity="Core2_2?type=ProcessingUnit">
+      <schedulingParameters priority="2"/>
+    </taskAllocation>
+    <taskAllocation task="TaskWithLabel3?type=Task" scheduler="SPPSchedulerECU2?type=TaskScheduler" affinity="Core2_2?type=ProcessingUnit">
+      <schedulingParameters priority="3"/>
+    </taskAllocation>
+    <taskAllocation task="TaskWithLabel4?type=Task" scheduler="SPPSchedulerECU2?type=TaskScheduler" affinity="Core2_2?type=ProcessingUnit">
+      <schedulingParameters priority="4"/>
+    </taskAllocation>
+    <taskAllocation task="TaskWithLabel5?type=Task" scheduler="SPPSchedulerECU2?type=TaskScheduler" affinity="Core2_2?type=ProcessingUnit">
+      <schedulingParameters priority="5"/>
+    </taskAllocation>
+  </mappingModel>
+</am:Amalthea>

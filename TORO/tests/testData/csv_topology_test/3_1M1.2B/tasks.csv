@@ -1,0 +1,4 @@
+task_name;period;offset;priority;wcet;resource;bcrt;wcrt;let
+BET_T1;6;0;1;n/a;core_1;1;2;n/a
+BET_T2;2;1;2;n/a;core_1;1;1;n/a
+BET_T3;12;-2;3;n/a;core_1;1;4;n/a

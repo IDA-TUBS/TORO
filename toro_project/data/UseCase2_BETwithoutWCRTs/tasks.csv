@@ -1,7 +1,0 @@
-task_name;period;offset;priority;wcet;resource;bcrt;wcrt;let
-BET_T1;5;0;1;1;core_1;n/a;n/a;n/a
-BET_T3;15;0;3;3;core_1;n/a;n/a;n/a
-BET_T5;10;0;2;2;core_1;n/a;n/a;n/a
-BET_T2;10;0;2;1;core_2;n/a;n/a;n/a
-BET_T4;5;0;1;1;core_2;n/a;n/a;n/a
-BET_T6;20;0;3;4;core_2;n/a;n/a;n/a

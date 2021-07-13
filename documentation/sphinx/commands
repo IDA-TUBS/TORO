@@ -1,0 +1,4 @@
+# if new modules added
+sphinx-apidoc -o source/code/ ../../TORO/libs/toro
+
+make html

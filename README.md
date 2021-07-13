@@ -80,10 +80,11 @@ Note: **argparse**, **dill** and **NetworkX** will be installed automatically wh
 
 ## Installation
 
-Clone out the git code repository [[link](https://git.ida.ing.tu-bs.de/kaige/Amalthea2PyCPA)].
+Clone tool's repository:
 
 ```bash
 $ git clone https://git.ida.ing.tu-bs.de/TORO/Wirkketten_Tool.git
+$ cd Wirkketten_Tool
 ```
 
 For general usage:

@@ -66,6 +66,10 @@ Later versions should also work but have not been verified to work properly.
 
   python graph library
 
+- **matplotlib** [[link](https://matplotlib.org/ "matplotlib")]
+
+  plotting library 
+
 - **pyCPA** [[link](https://pycpa.readthedocs.io/en/latest/ "pyCPA website")]
 
   python graph library

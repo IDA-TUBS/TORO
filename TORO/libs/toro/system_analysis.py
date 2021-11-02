@@ -144,7 +144,8 @@ def perform_analysis(args, system, chains, performance_eval=False):
 
         # list for storing the analysis results
         robustness_margins = list()
-        delta_let = list()    
+        delta_let = list()
+        slack = list()   
         sub_deadlines = dict()
 
         for chain in chains:
@@ -169,7 +170,7 @@ def perform_analysis(args, system, chains, performance_eval=False):
                 # calc subchain latency, transition latencies, robustness margins and delta let values
                 args_tmp = argsDummy(lat=args.lat, rm=False, plot=args.plot)
 
-                lat, t_lat, rm, dlet = analyse_chain(subchain, prev_chain, args_tmp)
+                lat, t_lat, rm, dlet, slk = analyse_chain(subchain, prev_chain, args_tmp)
 
                 # store subchain latency in extEffectChain object subchain
                 subchain.latency = lat
@@ -221,7 +222,7 @@ def perform_analysis(args, system, chains, performance_eval=False):
                 # disable latency calculation, since the max e2e latency of a (sub)chain won't change when subchain and transition deadlines are defined 
                 args_tmp = argsDummy(lat=False, rm=args.rm, plot=args.plot)
 
-                lat, t_lat, rm, dlet = analyse_chain(subchain, previousChain=None, args=args_tmp)
+                lat, t_lat, rm, dlet, slk = analyse_chain(subchain, previousChain=None, args=args_tmp)
 
                 if (args.rm is True):
                     if bool(rm):
@@ -230,6 +231,9 @@ def perform_analysis(args, system, chains, performance_eval=False):
                     if bool(dlet):
                         # create list of dictionaries
                         delta_let.append(dlet)
+                    if(slk):
+                        # create list of dictionaries
+                        slack.append(slk)
 
 
         # calculate the largest possible robustness margin/delta let for each task based on the result from every cause-effect-chain
@@ -267,7 +271,7 @@ def perform_analysis(args, system, chains, performance_eval=False):
             for subchain in chain.decomposed_chains:
                 transition_latencies[chain.name].append(subchain.transition_latency)
         
-        results = SystemAnalysisResults(system.name, chain_latencies, robustness_margins, delta_let, subchain_deadlines=chain_deadline_results, task_results=task_results, sub_deadlines=sub_deadlines, transition_latencies=transition_latencies)
+        results = SystemAnalysisResults(system.name, chain_latencies, robustness_margins, delta_let, slack=slack, subchain_deadlines=chain_deadline_results, task_results=task_results, sub_deadlines=sub_deadlines, transition_latencies=transition_latencies)
         return results
 
 
@@ -400,6 +404,7 @@ def analyse_chain(chain, previousChain, args):
     t_lat = 0
     robustness_margins = dict()
     delta_let = dict()
+    task_slack = dict()
 
     chain_type = chain.semantic
 
@@ -441,12 +446,12 @@ def analyse_chain(chain, previousChain, args):
     if (args.rm is True):
         # option 2: calculate robustness margins/delta let
         print("Calculating robustness margins of cause-effect chain %s." % chain.name)
-        robustness_margins, delta_let = analysis.calculate_robustness_margins()
+        robustness_margins, delta_let, task_slack = analysis.calculate_robustness_margins()
 
     if (args.plot is True): # TODO remove here? add somewhere else?
         analysis.plot('drawIntervals')
 
-    return e2e_lat, t_lat, robustness_margins, delta_let
+    return e2e_lat, t_lat, robustness_margins, delta_let, task_slack
 
 
 

@@ -335,7 +335,7 @@ class ChainAnalysis(ChainBaseClass):
         return length
     
 
-    def calculate_robustness_margins(self) -> Tuple[Dict, Dict]:
+    def calculate_robustness_margins(self) -> Tuple[Dict, Dict, Dict]:
         """ This function calculates robustness margins of all tasks of the chain
         by comparing every job's data intervals with its own deadline, each successor's
         read interval or the maximum e2e latency defined for the cec. Also transition deadlines
@@ -344,7 +344,7 @@ class ChainAnalysis(ChainBaseClass):
         Equations (2.13), (3.10) and (3.3) from [4] are used (equations adopted from [3]).
         The latter two are also extended taken arbitrary (non-implicit) deadlines into account as well.
 
-        :rtype: dict, dict
+        :rtype: dict, dict, dict
         """
         if (self.__data_prop_graph is None):
             raise GraphNotBuiltException('Data propagation graph has not been build yet! Call build_graph() before calling calculate_e2e_lat().')
@@ -352,11 +352,13 @@ class ChainAnalysis(ChainBaseClass):
         # dictionaries to store results in
         tasks_rm = dict()
         tasks_delta_let = dict()
+        tasks_slack = dict()
 
         # initialize dictionaries
         for task in self.__tasks:
             tasks_rm[task.name] = list()
             tasks_delta_let[task.name] = list()
+            tasks_slack[task.name] = list()
 
         # calculate robustness margin for each job
         jobs = list(self.__data_prop_graph.get_nodes())
@@ -426,6 +428,7 @@ class ChainAnalysis(ChainBaseClass):
                 theta = unreachable_job.Rmin - job.Dmax
                 assert theta >= 0, ('per definition theta must not be < 0, but here theta = %d' %theta)
                 job.set_slack(theta)
+                tasks_slack[task_name].append(theta)
                 if(job.semantic == Semantics.BET):
                     tasks_rm[task_name].append(theta)
                     
@@ -487,8 +490,21 @@ class ChainAnalysis(ChainBaseClass):
                 delta_let = min(d_let_list)
                 tasks_delta_let[task_name] = delta_let
 
+        
+        for task_name, slack_lst in tasks_slack.items():
+            if (len(slack_lst) != 0):
+                # remove negative values from list
+                slack_lst = [x for x in slack_lst if x >= 0]
 
-        return tasks_rm, tasks_delta_let
+                # prevent failures if no none-negative values exits for a given task
+                if len(slack_lst) == 0:
+                    slack_lst.append(0)
+
+                # slack equals smallest theta in slack_lst
+                theta_max = min(slack_lst)
+                tasks_slack[task_name] = theta_max
+
+        return tasks_rm, tasks_delta_let, tasks_slack
 
 
     ###################################

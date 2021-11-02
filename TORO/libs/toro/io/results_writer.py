@@ -97,7 +97,7 @@ class ResultsWriter(object):
             csv_writer.writerow(['task', 'slack'])
 
             for task in res.slack.keys():
-                csv_writer.writerow([task, (res.slack[task] if task in res.slack.keys() else None)])
+                csv_writer.writerow([task, res.slack[task]])
 
 
     

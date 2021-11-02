@@ -273,7 +273,7 @@ def perform_analysis(args, system, chains, performance_eval=False):
             for subchain in chain.decomposed_chains:
                 transition_latencies[chain.name].append(subchain.transition_latency)
         
-        results = SystemAnalysisResults(system.name, chain_latencies, robustness_margins, delta_let, slack=slack, subchain_deadlines=chain_deadline_results, task_results=task_results, sub_deadlines=sub_deadlines, transition_latencies=transition_latencies)
+        results = SystemAnalysisResults(system.name, chain_latencies, robustness_margins, delta_let, slack=slack[0], subchain_deadlines=chain_deadline_results, task_results=task_results, sub_deadlines=sub_deadlines, transition_latencies=transition_latencies)
         return results
 
 
@@ -368,9 +368,10 @@ def check_task_deadlines(pycpa_system):
                         print('Task ' + t.name + ' violates its implicit deadline by ' + str(t.wcrt - t.in_event_model.P - t.release_offset))   
                         num_unsched_tasks += 1
                 if (t.semantic == Semantic.LET):
-                    if (t.sl_ic_task is True):
-                        # skip since sl let ic tasks do not have implicit deadlines
-                        continue
+                    if hasattr(t, 'sl_ic_task'):
+                        if (t.sl_ic_task is True):
+                            # skip since sl let ic tasks do not have implicit deadlines
+                            continue
                     if not (t.wcrt <= t.let):
                         print('Task ' + t.name + ' violates its implicit deadline by ' + str(t.wcrt - t.let))   
                         num_unsched_tasks += 1

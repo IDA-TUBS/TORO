@@ -32,7 +32,7 @@ from .analysis_bc import GraphNotBuiltException
 
 
 
-Wrapper = "NX" # choose either "NX" or "GT"
+Wrapper = "GT" # choose either "NX" or "GT"
 if Wrapper == "NX":
     Graph = wrappers.networkx_wrapper
 elif Wrapper == "GT":
@@ -503,6 +503,8 @@ class ChainAnalysis(ChainBaseClass):
                 # slack equals smallest theta in slack_lst
                 theta_max = min(slack_lst)
                 tasks_slack[task_name] = theta_max
+            else:
+                tasks_slack[task_name] = 0
 
         return tasks_rm, tasks_delta_let, tasks_slack
 

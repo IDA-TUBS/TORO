@@ -98,6 +98,8 @@ class SystemAnalysisResults(object):
         writer.chain_results_to_csv(self, dir)
         writer.robustness_results_to_csv(self, dir)
         writer.task_results_to_csv(self, dir)
+        if(self.slack is not None):
+            writer.slack_to_csv(self, dir)
 
 
 

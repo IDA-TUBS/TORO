@@ -85,6 +85,20 @@ class ResultsWriter(object):
             for task in keys:
                 csv_writer.writerow([task, (res.robustness_margins[task] if task in res.robustness_margins.keys() else None), (res.delta_let[task] if task in res.delta_let.keys() else None)])
 
+    def slack_to_csv(self, res, dir):
+        """ write slack results to csv file
+
+        :param res: system_analysis SystemAnalysisResults
+        :param dir: string
+        """
+
+        with open(dir + '/slack_results.csv', 'w', newline='') as file:
+            csv_writer = csv.writer(file, delimiter=';')
+            csv_writer.writerow(['task', 'slack'])
+
+            for task in res.slack.keys():
+                csv_writer.writerow([task, (res.slack[task] if task in res.slack.keys() else None)])
+
 
     
     def results_to_string(self, res):

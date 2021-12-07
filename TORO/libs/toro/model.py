@@ -206,56 +206,30 @@ class extEffectChain(model.EffectChain):
         """
         self.semantic = semantic
 
-
-    def decompose(self):
-        """ This function decomposes a heterogeneous cause-effect chain into multiple sections (subchains).
-        The subchains are supposed to be as long possible [3] to avoid overly pessimistic results for both the
-        end-to-end latency as well as the robustness margins derived using the calculated latency. Here, chains
-        are split at any transition between two different semantics.
-
-        :rtype: None
+    
+    def determine_semantic(self) -> bool:
+        """ Determine and set semantic of chain. Must not work work if tasks with
+        different semantics are included.
+        
+        :rtype: bool
         """
-        decomposed_chains = list()
-        chain_cnt = 0
-
+        
+        semantic_tmp = None
         prev = None
-        sub_chain = list()
-
         for task in self.tasks:
-            if prev is None:
-                # first task in chain: append regardless of semantic/activation pattern
-                sub_chain.append(task)
+            print(task)
+            if semantic_tmp is None:
+                semantic_tmp = task.semantic
+                print(semantic_tmp)
             else:
                 # compare semantic/activation pattern with previous task
-                if task.semantic == prev.semantic:
-                    # consecutive tasks of the same semantic belong to the same sub chain
-                    sub_chain.append(task)                
-                else:
-                    # add the previous, now final sub chain to decomposed_chains                    
-                    chain = type(self)(self.name + "_subchain_" + str(chain_cnt), sub_chain, subchain=True)
-                    chain.set_semantic(prev.semantic)
-                    decomposed_chains.append(chain)
-                    chain_cnt += 1
-                    
-                    # create new empty sub chain task list
-                    sub_chain = list()
-
-                    # add first task of new sub chain to list
-                    sub_chain.append(task)
+                if task.semantic != prev.semantic:
+                    return False                    
             prev = task
-            
-        
-        # if chain not decomposable into sub chains, decomposed_chains is still empty
-        if sub_chain is not None:
-            if chain_cnt == 0:
-                deadline = self.e2e_deadline
-            else:
-                deadline = None
-            chain = type(self)(self.name + "_subchain_" + str(chain_cnt), sub_chain, deadline, subchain=True)
-            chain.set_semantic(prev.semantic)
-            decomposed_chains.append(chain)
 
-        self.decomposed_chains = decomposed_chains
+        self.set_semantic(semantic_tmp)   
+        
+        return True
 
 
     def calculate_transition_latency(self, prevChain):

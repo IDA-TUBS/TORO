@@ -339,7 +339,7 @@ class ChainAnalysis(ChainBaseClass):
         """ This function calculates robustness margins of all tasks of the chain
         by comparing every job's data intervals with its own deadline, each successor's
         read interval or the maximum e2e latency defined for the cec. Also transition deadlines
-        imposed on decomposed subchains are taken into acoount.
+        imposed on decomposed subchains can be taken into acoount.
         Foundations are theorems 2, 3 and 4 from [3]. 
         Equations (2.13), (3.10) and (3.3) from [4] are used (equations adopted from [3]).
         The latter two are also extended taken arbitrary (non-implicit) deadlines into account as well.

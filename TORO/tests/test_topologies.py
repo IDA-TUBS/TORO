@@ -169,7 +169,5 @@ def test_perform_analysis_rand(test_data_random):
 
     new_results = system_analysis.perform_analysis(args, system_description, chain_description)
 
-    # print(new_results.toString())
-    # print(results.toString())
     assert len(new_results.chain_latencies) == 1, "No decomposed chains expected here"
     assert new_results == results

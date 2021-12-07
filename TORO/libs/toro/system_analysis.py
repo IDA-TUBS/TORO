@@ -64,6 +64,8 @@ class SystemAnalysisResults(object):
         :param other: SystemAnalysisResults object
         :rtype: bool
         """
+        print(other.toString())
+        print("---")
         if not(isinstance(other, SystemAnalysisResults)): # pragma: no cover
             return False
         else:
@@ -129,7 +131,7 @@ def perform_analysis(args, system, chains, performance_eval=False):
     :param performance_eval: bool
     :rtype: SystemAnalysisResults object
     """
-    
+
     # use pycpa to calculate response times of all tasks
     if (args.wcrt is True):
         task_results = calculate_wcrt(system)
@@ -148,94 +150,34 @@ def perform_analysis(args, system, chains, performance_eval=False):
         robustness_margins = list()
         delta_let = list()
         slack = list()   
-        sub_deadlines = dict()
+        
 
         for chain in chains:
             io.PrintOuts.newline()
             io.PrintOuts.doubleline()
             print('Analyzing cause-effect chain: ' + chain.name + "\n" + str([task.name for task in chain.tasks]))
 
-            # decompose heterogenous cause-effect chains
-            chain.decompose()
+            # determine chain semantic
+            if(not chain.determine_semantic()):
+                quit("Cannot analyze chains with tasks of different semantic!")
 
-            # temporary variable for storing the the previous subchain
-            prev_chain = None
-
-            # sum of subchain latencies WITHOUT transition latencies!
-            sum_chain_latencies = 0
-
-            sum_let_transistion_latencies = 0
-            sum_bet_transistion_latencies = 0
-
-            # first calculate subchain latencies and transition latencies between consecutive subchains
-            for subchain in chain.decomposed_chains:
-                # calc subchain latency, transition latencies, robustness margins and delta let values
-                args_tmp = argsDummy(lat=args.lat, rm=False, plot=args.plot)
-
-                lat, t_lat, rm, dlet, slk = analyse_chain(subchain, prev_chain, args_tmp)
-
-                # store subchain latency in extEffectChain object subchain
-                subchain.latency = lat
-
-                sum_chain_latencies += lat
                 
-                # accumulate transition latencies of a chain according to the transition type
-                if (prev_chain is not None):
-                    if (prev_chain.semantic == Semantic.LET):
-                        sum_let_transistion_latencies += t_lat
-                        prev_chain.transition_deadline = t_lat
-                    elif (prev_chain.semantic == Semantic.BET):
-                        sum_bet_transistion_latencies += t_lat
-                    else:
-                        raise NotImplementedError("Procesing of chains that use a %s semantic has not been implemented yet" % prev_chain.semantic)
+            # calculate only robustness margins and delta let values of a chain
+            args_tmp = argsDummy(lat=args.lat, rm=args.rm, plot=args.plot)
+            lat, t_lat, rm, dlet, slk = analyse_chain(chain, previousChain=None, args=args_tmp)
 
-                # set previous chain as tmp variable
-                prev_chain = subchain
-            # store total max. e2e latency
-            chain_latencies[chain.name] = sum_chain_latencies + sum_bet_transistion_latencies + sum_let_transistion_latencies
+            chain_latencies[chain.name] = lat
 
-            # TODO also do not proceed if chain.e2e_deadline is not defined?? does it even make sense to proceed if deadline has not been defined
-
-            # only proceed with subchain deadline calculation in case a chain consists of multiple (more than 1) subchains
-            if (len(chain.decomposed_chains) > 1):          
-                # store sum of subchain latencies
-                chain.combined_latency = sum_chain_latencies
-
-                # store transition latencies (of chain not subchain!)
-                chain.combined_transistion_latencies['let'] = sum_let_transistion_latencies
-                chain.combined_transistion_latencies['bet'] = sum_bet_transistion_latencies
-
-                # calculate preliminary deadline for each subchain
-                for subchain in chain.decomposed_chains:
-                    subchain.calculate_preliminary_deadline(chain.e2e_deadline, chain.combined_latency, chain.combined_transistion_latencies)              
-
-                chain_deadline_results = chain.calc_actual_deadlines()
-
-                io.PrintOuts.line()
-                print("Determining subchain deadlines:")
-                for i in range(0, len(chain.decomposed_chains)):
-                    print("\t" + chain.decomposed_chains[i].name + ":" + "deadline=" + str(chain_deadline_results[i][0]) + ", transition deadline=" + str(chain_deadline_results[i][1]))
-                sub_deadlines[chain.name] = chain_deadline_results
-            else:
-                chain_deadline_results = list([chain.e2e_deadline,None])  
-                
-            # calculate only robustness margins and delta let values for each subchain
-            for subchain in chain.decomposed_chains:
-                # disable latency calculation, since the max e2e latency of a (sub)chain won't change when subchain and transition deadlines are defined 
-                args_tmp = argsDummy(lat=False, rm=args.rm, plot=args.plot)
-
-                lat, t_lat, rm, dlet, slk = analyse_chain(subchain, previousChain=None, args=args_tmp)
-
-                if (args.rm is True):
-                    if bool(rm):
-                        # create list of dictionaries
-                        robustness_margins.append(rm)
-                    if bool(dlet):
-                        # create list of dictionaries
-                        delta_let.append(dlet)
-                    if(slk):
-                        # create list of dictionaries
-                        slack.append(slk)
+            if (args.rm is True):
+                if bool(rm):
+                    # create list of dictionaries
+                    robustness_margins.append(rm)
+                if bool(dlet):
+                    # create list of dictionaries
+                    delta_let.append(dlet)
+                if(slk):
+                    # create list of dictionaries
+                    slack.append(slk)
 
 
         # calculate the largest possible robustness margin/delta let for each task based on the result from every cause-effect-chain
@@ -258,23 +200,13 @@ def perform_analysis(args, system, chains, performance_eval=False):
             for task, dlet in sorted(delta_let.items()):
                 print("Delta LET of task \"%s\" is %d." %(task, dlet))
 
-        # TODO issues in combination with chain decomposition
         # verify, whether the robustness margins actually do not lead to deadline misses
         if (args.test is True):
             verify_margins(chains, task_results, robustness_margins, delta_let)
 
 
-        # optional: plot reachability graphs
-
-
-        # return final analysis results
-        transition_latencies = dict()
-        for chain in chains:
-            transition_latencies[chain.name] = list()
-            for subchain in chain.decomposed_chains:
-                transition_latencies[chain.name].append(subchain.transition_latency)
-        
-        results = SystemAnalysisResults(system.name, chain_latencies, robustness_margins, delta_let, slack=slack, system=system, subchain_deadlines=chain_deadline_results, task_results=task_results, sub_deadlines=sub_deadlines, transition_latencies=transition_latencies)
+        # return final analysis results       
+        results = SystemAnalysisResults(system.name, chain_latencies, robustness_margins, delta_let, slack=slack, system=system, task_results=task_results)
         return results
 
 
@@ -349,7 +281,6 @@ def calculate_wcrt(pycpa_system):
 
 
 
-# TODO only works for periodic tasks so far!
 # TODO change do use the arbitrary deadline attribute of TORO extTasks
 def check_task_deadlines(pycpa_system):
     """ check whether all tasks satisfy their deadline constraints
@@ -396,7 +327,7 @@ def group_synchronized_resources(system): # pragma: no cover
 def analyse_chain(chain, previousChain, args):
     """ analyses a cause-effect chain
 
-    :param chain: TORO extEffectChain object
+    :param prev_chain: TORO extEffectChain object
     :param args: argparse arguments
     """
     global analyses
@@ -436,7 +367,6 @@ def analyse_chain(chain, previousChain, args):
     else:
         # load already exisiting analyses object for that (sub)chain with an already built data propagation graph
         analysis = analyses[chain]
-
     
     # for all instances:
     if (args.lat is True): # TODO: and chain.transition_latency is None possible as well!
@@ -444,15 +374,13 @@ def analyse_chain(chain, previousChain, args):
         print("Calculating maximum end-to-end latencies of cause-effect chains.")
         e2e_lat = analysis.calculate_e2e_lat(print_all=False)
 
-        if previousChain is not None:
-            t_lat = chain.calculate_transition_latency(previousChain)
-
     if (args.rm is True):
         # option 2: calculate robustness margins/delta let
         print("Calculating robustness margins of cause-effect chain %s." % chain.name)
         robustness_margins, delta_let, task_slack = analysis.calculate_robustness_margins()
 
-    if (args.plot is True): # TODO remove here? add somewhere else?
+    if (args.plot is True):
+        # TODO only very basic plotting function that does not scale well, update/rewrite for better plots
         analysis.plot('drawIntervals')
 
     return e2e_lat, t_lat, robustness_margins, delta_let, task_slack
@@ -482,26 +410,11 @@ def verify_margins(chains, task_results, robustness_margins, delta_let):
             continue
 
         print('Chain: ', chain.name)
-        total_chain_lat = 0
-        prev_chain = None
-        for subchain in chain.decomposed_chains:
-            # call test function for each sub_chain
-            res, subchain_latency = analyses[subchain].test(robustness_margins, delta_let)
-            total_chain_lat += subchain_latency
-            if res is not True:
-                print("\tApplying robustness margins leads to a deadline miss for subchain " + subchain.name + ".")
-                failure_cnt += 1
+            
+        res, chain_latency = analyses[chain].test(robustness_margins, delta_let)
 
-            # recalculate transition latencies
-            if prev_chain is not None:
-                transition_latency = subchain.calculate_transition_latency(prev_chain)
-                total_chain_lat += transition_latency
-                
-            prev_chain = subchain
-
-            # TODO assumptions? transition latencies will not change?!?! - does not apply to BET tasks (as previous chain)
-        if total_chain_lat <= chain.e2e_deadline:
-            print("Applying robustness margins leads to no deadline miss for chain " + chain.name + "\n\tnew e2e latency: " + str(total_chain_lat) + " vs deadline: " + str(chain.e2e_deadline) + "\n")
+        if chain_latency <= chain.e2e_deadline:
+            print("Applying robustness margins leads to no deadline miss for chain " + chain.name + "\n\tnew e2e latency: " + str(chain_latency) + " vs deadline: " + str(chain.e2e_deadline) + "\n")
 
     if failure_cnt == 0:
         print('Verification succeded:\nDeadlines are still adhered to after applying robustness margins and delta let to tasks')

@@ -242,6 +242,7 @@ def perform_analysis(args, system, chains, performance_eval=False):
         if (args.rm is True):
             # robustness_margins and delta_let are dictionaries as of here
             robustness_margins, delta_let = calc_min_rm_and_dlet(robustness_margins, delta_let)
+            slack = calc_min_slack(slack)
 
         # print results to console and TODO write results to csv/model
         if (args.lat is True):
@@ -273,7 +274,7 @@ def perform_analysis(args, system, chains, performance_eval=False):
             for subchain in chain.decomposed_chains:
                 transition_latencies[chain.name].append(subchain.transition_latency)
         
-        results = SystemAnalysisResults(system.name, chain_latencies, robustness_margins, delta_let, slack=slack[0], subchain_deadlines=chain_deadline_results, task_results=task_results, sub_deadlines=sub_deadlines, transition_latencies=transition_latencies)
+        results = SystemAnalysisResults(system.name, chain_latencies, robustness_margins, delta_let, slack=slack, system=system, subchain_deadlines=chain_deadline_results, task_results=task_results, sub_deadlines=sub_deadlines, transition_latencies=transition_latencies)
         return results
 
 
@@ -536,3 +537,19 @@ def calc_min_rm_and_dlet(list_rm, list_dlet):
                     dlet[key] = value
     
     return rm, dlet
+
+def calc_min_slack(lst_slack):
+    """ calculates the min slack of all tasks based on the analyses 
+    of all cause-effect chains defined for a given system
+
+    :param list_rm: list of dict containing task slacks
+    """
+    slk = dict()
+    
+    if len(lst_slack) > 0:
+        for dictionary in lst_slack:
+            for key, value in dictionary.items():
+                if (key not in slk.keys() or slk[key] > value) and not(isinstance(value, list)):
+                    slk[key] = value
+    
+    return slk

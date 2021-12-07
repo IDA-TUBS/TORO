@@ -66,10 +66,6 @@ Later versions should also work but have not been verified to work properly.
 
   python graph library
 
-- **matplotlib** [[link](https://matplotlib.org/ "matplotlib")]
-
-  plotting library 
-
 - **pyCPA** [[link](https://pycpa.readthedocs.io/en/latest/ "pyCPA website")]
 
   python graph library
@@ -165,7 +161,7 @@ See sphinx documentation
 
 [2] M.   Becker,   D.   Dasari,   S.   Mubeen,   M.   Behnam,   and   T.   Nolte,   “**End-to-end timing  analysis  of  cause-effect  chains  in  automotive  embedded  systems**”, Journal of  Systems  Architecture,   vol.  80,   pp.  104  –  113,   2017.  [[Online](http://www.sciencedirect.com/science/article/pii/S1383762117300681)]. 
 
-[3] L. Köhler, M. J. Friese, and R. Ernst, “**Computing Real-Time Properites of Hetero-geneous and Distributed Cause-Effect Chains**”, Institute of Computer and Network Engineering, TU Braunschweig, Tech. Rep., 2020. 
+[3] L. Köhler, P.Hertha, M.Beckert, A. Bendrick, R. Ernst, "**Robust Cause-Effect Chains with Bounded Execution Time and System-Level Logical Execution Time**"
 
 [4] A. Bendrick, "**Optimisation and improvement of graph analysis in connection with the TORO tool**", Institute of Computer and Network Engineering, TU Braunschweig, Masterthesis, 2021. 
 

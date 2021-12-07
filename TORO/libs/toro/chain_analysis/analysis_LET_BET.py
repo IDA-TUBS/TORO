@@ -340,7 +340,7 @@ class ChainAnalysis(ChainBaseClass):
         by comparing every job's data intervals with its own deadline, each successor's
         read interval or the maximum e2e latency defined for the cec. Also transition deadlines
         imposed on decomposed subchains are taken into acoount.
-        Foundations are theorems 4, 5 and 6 from [3]. 
+        Foundations are theorems 2, 3 and 4 from [3]. 
         Equations (2.13), (3.10) and (3.3) from [4] are used (equations adopted from [3]).
         The latter two are also extended taken arbitrary (non-implicit) deadlines into account as well.
 
@@ -377,20 +377,23 @@ class ChainAnalysis(ChainBaseClass):
                 # if a deadline for a task exist use that deadline instead of the period
                 if job.deadline is not None:
                     tasks_rm[task_name].append(job.deadline - job.offset - job.wcrt)
+                    tasks_slack[task_name].append(job.deadline - job.offset - job.wcrt)
                 else:
                     # d_tau_k^c - WCRT(tau_k^c), adjusted by offset
                     tasks_rm[task_name].append(job.period - job.offset - job.wcrt)
+                    tasks_slack[task_name].append(job.period - job.offset - job.wcrt)
 
             elif(job.semantic == Semantics.LET):
                 if not(job.wcrt is None or job.wcrt == 'unknown' or job.wcrt == 'n/a'):
                     # robustness of let task: let - wcrt
-                    # [4] Equation (2.13) as adopted from [3] theorem 5
+                    # [4] Equation (2.13) as adopted from [3] theorem 2
                     tasks_rm[task_name].append(job.let - job.wcrt)
 
                 if (job.ic_task is False):
                     # following formula is not valid of (SL) LET interconnect tasks 
                     # as the LET may significantly exceeds a task's period
                     tasks_delta_let[task_name].append(job.period - job.offset - job.let)
+                    tasks_slack[task_name].append(job.period - job.offset - job.let)
                 tasks_delta_let[task_name].append(job.period)
 
 
@@ -398,7 +401,7 @@ class ChainAnalysis(ChainBaseClass):
             # SECOND OPTION: job is not an instance of last task
             # Slack Theta: Calculate margin in a way, that there will be no new instance of a
             # consumer task that can read data from the job.
-            # cf. [4] Equation (2.10) that is taken over from [3] theorem 4 
+            # cf. [4] Equation (2.10) that is adopted from theta-term as used in theorem 3 and 4 [3] 
             if (job.task_name != self.__last_task_name):
                 consumers = self.__data_prop_graph.get_successors(job)
 
@@ -423,18 +426,21 @@ class ChainAnalysis(ChainBaseClass):
                     unreachable_job = self.__get_job2(job, self.__cec.tasks[i])
                 else:
                     unreachable_job = self.__get_job(task_name_suc, highest_index + 1)
+                    # n = 1
+                    # while (unreachable_job.Rmin - job.Dmax) < 0:
+                    #     unreachable_job = self.__get_job(task_name_suc, highest_index + 1 + n)
+                    #     n += 1
 
                 # calculate max. slack theta and add to list of the corresponding task's robustness margins / delta let values
                 theta = unreachable_job.Rmin - job.Dmax
                 assert theta >= 0, ('per definition theta must not be < 0, but here theta = %d' %theta)
                 job.set_slack(theta)
-                tasks_slack[task_name].append(theta)
+                # tasks_slack[task_name].append(theta)
                 if(job.semantic == Semantics.BET):
                     tasks_rm[task_name].append(theta)
                     
                 elif(job.semantic == Semantics.LET):
                     tasks_delta_let[task_name].append(theta)
-
 
 
 
@@ -455,9 +461,10 @@ class ChainAnalysis(ChainBaseClass):
                 
                 # take transition deadlines into account as well:
                 if(job.semantic == Semantics.BET):
-                    # NOTE: adopted from updated "old" TORO implementation
-                    if self.__cec.transition_deadline != None and self.__cec.transition_deadline != 0:
-                        tasks_rm[task_name].append(self.__cec.transition_deadline - job.period - job.wcrt + job.bcrt)
+                    if hasattr(self.__cec, "transition_deadline"):
+                        # NOTE: adopted from updated "old" TORO implementation
+                        if self.__cec.transition_deadline != None and self.__cec.transition_deadline != 0:
+                            tasks_rm[task_name].append(self.__cec.transition_deadline - job.period - job.wcrt + job.bcrt)
 
 
 

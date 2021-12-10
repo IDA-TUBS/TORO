@@ -46,11 +46,11 @@ class argsDummy(object):
 @pytest.fixture(params = [
         ('system_model_0.pkl', 'system_model_0_results.pkl'),
         ('system_model_1.pkl', 'system_model_1_results.pkl'),
-        ('system_model_2.pkl', 'system_model_2_results.pkl'),
-        ('system_model_3.pkl', 'system_model_3_results.pkl'),
-        ('system_model_4.pkl', 'system_model_4_results.pkl'),
-        ('system_model_5.pkl', 'system_model_5_results.pkl'),
-        ('system_model_6.pkl', 'system_model_6_results.pkl')
+        ('system_model_2.pkl', 'system_model_2_results.pkl')#, 
+        # ('system_model_3.pkl', 'system_model_3_results.pkl'), # decomposable chain
+        # ('system_model_4.pkl', 'system_model_4_results.pkl'), # decomposable chain
+        # ('system_model_5.pkl', 'system_model_5_results.pkl'), # decomposable chain
+        # ('system_model_6.pkl', 'system_model_6_results.pkl')  # decomposable chain
 ])
 def test_data(request):
     """ load test cases """

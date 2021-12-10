@@ -178,6 +178,7 @@ Use Case 4-7:  Heterogeneous cause-effect chains, comprised of LET and BET chain
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. note::
    * examples with a maximum of 3 subchains per CEC
+   * Right now, those use cases can only be processed using the TORO version found in branch "feature/chain_decomposition"
 
 The Use Cases require that:
 

@@ -16,6 +16,8 @@ As Input TORO accepts specifically constructed csv-files as well as Amalthea sys
 
 The code documentation can be built using [sphinx](https://www.sphinx-doc.org/en/master/):
 
+Install [sphinx](https://www.sphinx-doc.org/en/master/usage/installation.html), [recommonmark](https://github.com/readthedocs/recommonmark) extension and the [RTD](https://sphinx-rtd-theme.readthedocs.io/en/stable/installing.html) theme prior to building the documentation.
+
 ```bash
 $ cd documentation/sphinx
 $ ./build_doc.sh
@@ -103,8 +105,6 @@ Note: make sure to install the tool using the right pip version if multiple Pyth
 
 
 
-
-
 ## Work Flow
 
 **TORO** can be used by calling the main script *toro_main.py*: 
@@ -123,9 +123,13 @@ Other options include:
 - **`--plot`**: plot data propagation graphs
 - **`--store`**: write results to csv files
 
+As a reference for model and chain csv-descriptions check the examples in `TORO\data\csv`.
+
 
 
 ## Reuse of existing functions outside of TORO
+
+Only exemplary code snippets listed that do not work as stand-alone code.
 
 ```python
 from TORO.libs.toro import model
@@ -134,11 +138,43 @@ Cec = model.extEffectChain
 
 from TORO.libs.toro import system_analysis
 from TORO.libs.toro import chain_analysis
+from TORO.libs.toro import model_parser
 
+###############################################
+#example 1 - system analysis (mutliple chains):
+###############################################
 
+system = None #create new or load existing (pycpa) system instead of None
+chain = [None] #create new or load existing list of chains (extEffectChain) instead of None
+args_tmp = system_analysis.argsDummy(lat=True, rm=True, wcrt=True, plot=False, test=False)
+
+results = system_analysis.perform_analysis(args_tmp, system, chains)
+
+###########################################
+#example 2 - chain analysis (single chain):
+###########################################
+
+system = None #create new or load existing (pycpa) system instead of None
+chain = None #create new or load existing chain (extEffectChain) instead of None
+
+args_tmp = system_analysis.argsDummy(lat=True, rm=True, wcrt=True, plot=False, test=False)
+
+# calculate miscellaneous attributes
+task_results = system_analysis.calculate_wcrt(system)
+lat, t_lat, rm, dlet, slack = system_analysis.analyse_chain(chain, previousChain=None, args=args_tmp)            
+res = system_analysis.SystemAnalysisResults('system', {chain.name: lat}, rm, dlet, slack=slack, task_results=task_results, system=system)
+
+print(res.toString())
+res.toCSV()
+
+#########################
+#example 3 - other parts:
+#########################
+
+parser = model_parser.CSVParser(<arguments dict needed by CSVParser>)
 res = system_analysis.SystemAnalysisResults('name', dict(), dict(), dict())
-
 analysis = chain_analysis.analysis_LET_BET.ChainAnalysis(Cec('name'), dict())
+#...
 ```
 
 
@@ -161,7 +197,7 @@ See sphinx documentation
 
 [2] M.   Becker,   D.   Dasari,   S.   Mubeen,   M.   Behnam,   and   T.   Nolte,   “**End-to-end timing  analysis  of  cause-effect  chains  in  automotive  embedded  systems**”, Journal of  Systems  Architecture,   vol.  80,   pp.  104  –  113,   2017.  [[Online](http://www.sciencedirect.com/science/article/pii/S1383762117300681)]. 
 
-[3] L. Köhler, P.Hertha, M.Beckert, A. Bendrick, R. Ernst, "**Robust Cause-Effect Chains with Bounded Execution Time and System-Level Logical Execution Time**"
+[3] L. Köhler, P. Hertha, M. Beckert, A. Bendrick, R. Ernst, "**Robust Cause-Effect Chains with Bounded Execution Time and System-Level Logical Execution Time**"
 
 [4] A. Bendrick, "**Optimisation and improvement of graph analysis in connection with the TORO tool**", Institute of Computer and Network Engineering, TU Braunschweig, Masterthesis, 2021. 
 
@@ -175,9 +211,9 @@ See sphinx documentation
 
 ## Changelog
 
-| Author        | Description                                                  | Date       |
-| ------------- | ------------------------------------------------------------ | ---------- |
-| Alex Bendrick | Updated TORO tool that utilizes NetworkX or graph-tool as graph libraries for implementing the latency analysis (Becker) and was extended to also feature new input data format (Amalthea) as well as  theoretically support SL LET | early 2021 |
-|               |                                                              |            |
-|               |                                                              |            |
+| Author        | Description                                                  | Date          |
+| ------------- | ------------------------------------------------------------ | ------------- |
+| Alex Bendrick | Updated TORO tool that utilizes NetworkX or graph-tool as graph libraries for implementing the latency analysis (Becker) and was extended to also feature new input data format (Amalthea) as well as  theoretically support SL LET | early 2021    |
+| Alex Bendrick | Ready for release, removed chain decomposition from master branch | December 2021 |
+|               |                                                              |               |
 

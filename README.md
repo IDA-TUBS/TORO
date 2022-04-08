@@ -117,7 +117,7 @@ $ make html
 $ python3 toro_main.py -m <modelType>
 ```
 
-The attribute behind **`-m`** is mandatory and defines the input data. So far *csv* and *amalthea* are supported.
+The attribute behind **`-m`** is mandatory and defines the input data. So far *csv* and *amalthea* (optional parser required) are supported.
 
 Other options include:
 

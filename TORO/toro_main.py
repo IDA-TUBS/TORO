@@ -76,24 +76,24 @@ if __name__ == "__main__":
                         action = 'store',
                         default = None,
                         dest = 'model_type',
-                        help = 'model type: csv, amalthea [mandatory]')
+                        help = '[mandatory] model types: csv, amalthea (only with optional parser)')
     toro_parser.add_argument('--path',  
                         type=str,
                         default='./data',
-                        help='the path to the systems folder')
+                        help='the path to the folder where the system model is located')
     toro_parser.add_argument('--plot', 
                         dest='plot', 
                         action='store_true',
                         help='diagrams are generated')   
-    toro_parser.add_argument('--DisableWCRT', 
+    toro_parser.add_argument('--disableWCRT', 
                         dest='wcrt', 
                         action='store_false',
                         help='disables computation of upper bounds on task response times')     
-    toro_parser.add_argument('--DisableLat', 
+    toro_parser.add_argument('--disableLat', 
                         dest='lat', 
                         action='store_false',
                         help='disables computation of upper bounds on latencies')
-    toro_parser.add_argument('--rm', 
+    toro_parser.add_argument('--disableRM', 
                         dest='rm', 
                         action='store_false',
                         help='disables computation of robustness margins for the given task set')
